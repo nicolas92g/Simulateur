@@ -5,16 +5,18 @@
  * \date   January 2021
  *********************************************************************/
 
-//allow to use ghost view mode with F4 by default
-//this enable some rendering debugging tools but diminuate performances
-#define NICO_RENDERING_DEBUG
 
 //this is the path of nico directory
-//#define NICO_PATH "../../../../OneDrive/Documents/C++ libs/nico/"
-//#define NICO_PATH "../../../OneDrive/Documents/C++ libs/nico/"
-#define NICO_PATH "C:/Users/nicol/OneDrive/Documents/C++ libs/nico/"
+#define NICO_PATH "C:/Users/nicol/OneDrive/Documents/C++ libs/nico/"//LA faut le repertoire dans lequel vous avez mis le dossier nico
 
-//this allow to modificate ghost view mode hotkeys
+//this enable some rendering debugging tools but decrease performances
+#define NICO_RENDERING_DEBUG
+
+
+
+//apres on s'en fout
+
+//ca ca marche pas(voila voila)
 #ifdef NICO_RENDERING_DEBUG
 #define GHOST_VIEW_MODE_KEY GLFW_KEY_F4
 #endif
