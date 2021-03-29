@@ -435,7 +435,7 @@ int testJSON() {
 	return 0;
 }
 
-int main() {
-	auto main = openGL;
-	return main();
-}
+//int main() {
+//	auto main = openGL;
+//	return main();
+//}
