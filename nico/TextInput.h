@@ -1,6 +1,6 @@
 #pragma once
-#include <nico/objects/Button.h>
-#include <nico/objects/textRenderer.h>
+#include <nico/Button.h>
+#include <nico/textRenderer.h>
 
 namespace nico{
 	/**

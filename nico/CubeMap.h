@@ -6,7 +6,7 @@
 #include "Classes.h"
 #include "vertexBuffer.h"
 #include "Camera.h"
-#include "objects/cube.h"
+#include "cube.h"
 #include <config.hpp>
 
 namespace nico{

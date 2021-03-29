@@ -11,7 +11,7 @@
 #include <glm/gtx/transform.hpp>
 #include <list>
 #include "Object2d.h"
-#include "objects/Button.h"
+#include "Button.h"
 
 namespace nico{
 	/**
