@@ -88,19 +88,25 @@ int exempleDeProgrammeComplet()
 	//changer la puissance de la reflection de la texture d'environment sur les objets [0, 1]
 	render.setAmbientStrength(0.3f);
 
+	// controle de la camera adapté :
+	Controls mouseCtrl(&player, &montgolfiere, render.Window(), vec3(0, 2, 0));
+	mouseCtrl.minAndMaxAngles = vec2(-0.1, 0.8);
+	mouseCtrl.zoomMax *= 2;
+
 
 	do {// ! // A PARTIR DE CETTE LIGNE, CHAQUE LIGNE S'EXECUTE A CHAQUE IMAGE DONC RACONTER VOTRE VIE SVP SI VOUS VOULEZ DES FPS
 
 		render.clear();// ! //nettoie l'ecran pour permetre d'y afficher une nouvelle image
 
 		//change dynamiquement la rotation de l'objet 3D "sphere"
-		montgolfiere.setRotation(vec3(1, sin(render.Window()->getTime() * 0.2f) * 4, 1), render.Window()->getTime() * 0.01f * input.getValue());
+		montgolfiere.setRotation(vec3(0, 1, 0), render.Window()->getTime() * 0.01f * input.getValue());
 
 		//on change dynamiquement la position l'object 2D "halo" au millieu de l'ecran
 		halo.setPosition(vec2(render.Window()->getWidth() / 2, render.Window()->getHeight() / 2));
 
-		player.classicKeyboardControls(render.Window(), 5);// ! //permet de bouger dans le monde avec z q s d espace et control - gauche
-		player.classicMouseControls(render.Window(), 0.004f);// ! //permet de bouger la direction de la camera avec la souris
+		//player.classicKeyboardControls(render.Window(), 5);// ! //permet de bouger dans le monde avec z q s d espace et control - gauche
+		//player.classicMouseControls(render.Window(), 0.004f);// ! //permet de bouger la direction de la camera avec la souris
+		mouseCtrl.update();
 
 		render.update();// ! //met a jour l'affichage des object 3D
 		render.frame();// ! //affiche une image a l'ecran des objets 3D
