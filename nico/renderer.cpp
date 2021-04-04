@@ -32,7 +32,7 @@ nico::Renderer::Renderer() :
 	//initialisation functions
 	initShadowSystem(10000);
 	createPlaneMesh();
-	setShaderConstantsUniforms();
+	setShaderConstantsUniforms(this->shader);
 
 	//create a camera object to see where is the camera in ghost mode
 #	ifdef NICO_RENDERING_DEBUG
@@ -113,7 +113,7 @@ void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t vi
 		nico::Shader newShader(NICO_SHADERS_PATH"default.vert", NICO_SHADERS_PATH"pbr.frag");
 		pbrShader = newShader;
 		shader = &pbrShader;
-		setShaderConstantsUniforms();
+		setShaderConstantsUniforms(this->shader);
 	}
 
 	reloadShaders.getState();
@@ -124,15 +124,7 @@ void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t vi
 	cam->sendToShader(shader);
 #	endif
 
-	//add lights to rendering 
-	if (pointLights.size() != 0)
-	for (std::list<BasicLight*>::iterator it = pointLights.begin(); it != pointLights.end(); it++) {
-		(**it).sendToShader(shader);
-	}
-
-	//set the directional light in the shader
-	if (dirLight != nullptr)
-		dirLight->sendToShader(shader);
+	sendLightsToShader(shader);
 
 	//framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
@@ -208,7 +200,7 @@ void nico::Renderer::setRenderingAlgorithm(renderingAlg algName)
 	default:
 		break;
 	}
-	setShaderConstantsUniforms();
+	setShaderConstantsUniforms(this->shader);
 }
 
 void nico::Renderer::setSkyMapRotation(float angle, glm::vec3 axe)
@@ -234,7 +226,7 @@ nico::Window* nico::Renderer::Window()
 	return &win;
 }
 
-void nico::Renderer::setShaderConstantsUniforms()
+void nico::Renderer::setShaderConstantsUniforms(nico::Shader* shader)
 {
 	//renderer shader
 	shader->set("irradianceMap",	NICO_IRRADIANCE_MAP_SAMPLER);
@@ -257,6 +249,40 @@ void nico::Renderer::setShaderConstantsUniforms()
 
 	//make the perfiltered environment map shader
 	prefilterShader.set("environmentMap", NULL);
+}
+
+void nico::Renderer::prepareShaderBeforeDraw(nico::Shader* shader)
+{
+	//dynamics shadows shader updates
+	shader->set<glm::mat4>("lightSpaceMatrix", lightVP);
+
+	//dynamics shadows texture binding
+	glActiveTexture(GL_TEXTURE0 + NICO_SHADOW_MAP_SAMPLER);
+	glBindTexture(GL_TEXTURE_2D, shadowDepthTextureId);
+
+	//binding irradiance map
+	glActiveTexture(GL_TEXTURE0 + NICO_IRRADIANCE_MAP_SAMPLER);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
+
+	//bind pre-filtered environment map
+	glActiveTexture(GL_TEXTURE0 + NICO_PREFILTERED_ENVIRONMENT_MAP_SAMPLER);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, preFilteredEnvironmentMap);
+
+	//bind pre-filtered environment map
+	glActiveTexture(GL_TEXTURE0 + NICO_BRDF_LUT_MAP);
+	glBindTexture(GL_TEXTURE_2D, brdfMap);
+}
+
+void nico::Renderer::sendLightsToShader(nico::Shader* shader)
+{
+	//add lights to rendering 
+	for (std::list<nico::BasicLight*>::iterator it = pointLights.begin(); it != pointLights.end(); it++) {
+		(**it).sendToShader(shader);
+	}
+
+	//set the directional light in the shader
+	if (dirLight != nullptr)
+		dirLight->sendToShader(shader);
 }
 
 void nico::Renderer::initShadowSystem(uint32_t depthMapSize)
@@ -619,8 +645,6 @@ void nico::Renderer::drawObjects()
 
 	glDepthMask(GL_FALSE);
 	
-
-	
 	skyMapShader.set("hdr", true);
 	skyMapShader.set("view", glm::mat4(glm::mat3(cam->getView())));
 	skyMapShader.set("projection", cam->getProjection());
@@ -650,31 +674,13 @@ void nico::Renderer::drawObjects()
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);*/
 
 
-	//dynamics shadows texture binding
-	glActiveTexture(GL_TEXTURE0 + NICO_SHADOW_MAP_SAMPLER);
-	glBindTexture(GL_TEXTURE_2D, shadowDepthTextureId);
-
-	//dynamics shadows shader updates
-	shader->set<glm::mat4>("lightSpaceMatrix", lightVP);
-
 	//DRAWING CALLS :
 
 #	ifdef NICO_RENDERING_DEBUG
 	int nbr = 0;
 #	endif
-	
-	//binding irradiance map
-	glActiveTexture(GL_TEXTURE0 + NICO_IRRADIANCE_MAP_SAMPLER);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
-	
 
-	//bind pre-filtered environment map
-	glActiveTexture(GL_TEXTURE0 + NICO_PREFILTERED_ENVIRONMENT_MAP_SAMPLER);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, preFilteredEnvironmentMap);
-
-	//bind pre-filtered environment map
-	glActiveTexture(GL_TEXTURE0 + NICO_BRDF_LUT_MAP);
-	glBindTexture(GL_TEXTURE_2D, brdfMap);
+	prepareShaderBeforeDraw(this->shader);
 
 	//iterate through decor
 	for (std::list<Object3d*>::iterator it = decors.begin(); it != decors.end(); it++) {
@@ -702,6 +708,3 @@ void nico::Renderer::drawObjects()
 	TextRenderer::textToPrint += " objs : " + std::to_string(nbr);
 #	endif
 }
-
-
-

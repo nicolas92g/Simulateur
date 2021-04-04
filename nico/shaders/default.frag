@@ -97,7 +97,6 @@ void main()
 
     FragColor.rgb = color;
     FragColor.a = texture(diffuse, uv).a;
-    FragColor = vec4(1,0,0,1);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec4 lightFP)
