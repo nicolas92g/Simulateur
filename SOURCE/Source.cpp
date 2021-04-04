@@ -125,6 +125,6 @@ int exempleDeProgrammeComplet()
 	return 0;// la simulation est finie (enfin)
 }
 
-int main(){
-	return exempleDeProgrammeComplet();
-}
+//int main(){
+//	return exempleDeProgrammeComplet();
+//}

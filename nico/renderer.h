@@ -118,6 +118,19 @@ namespace nico {
 		 */
 		void setSkyMapRotation(float angle, glm::vec3 rotAxe = glm::vec3(0,1,0));
 		void setAmbientStrength(float ambientStrength);
+		/**
+		 * @brief set the shaders constant uniforms
+		 */
+		void setShaderConstantsUniforms(Shader* shader);
+		/**
+		 * @brief bind all the textures needed, and set some variable uniform
+		 */
+		void prepareShaderBeforeDraw(Shader* shader);
+		/**
+		 * @brief send all the lights to the shader
+		 * \param shader
+		 */
+		void sendLightsToShader(Shader* shader);
 
 		//accessors
 
@@ -151,7 +164,7 @@ namespace nico {
 		nico::Shader phongShader;//this is use to render with phong technique
 		nico::Shader pbrShader;	 //this is use to render with phisically based rendering techniques
 		
-		void setShaderConstantsUniforms();// this initialize the shader uniforms that don't have to be updated each frame
+		
 		
 		//CAMERAS
 		Camera* cam;//camera to use to render

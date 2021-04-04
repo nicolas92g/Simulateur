@@ -62,7 +62,8 @@ vec3 CalcDirLight(DirLight light, vec3 F0, vec3 viewDir, vec4 lightFragmentPosit
 vec3 CalcSpotLight(SpotLight spotLight, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir);
 float calcShadow(vec4 lightFP, vec3 normal, vec3 lightDir);
-vec3 calcNormal();
+vec3 calcNormal(sampler2D tex);
+vec3 calcColor(vec3 N);
 
 float DistributionGGX(vec3 N, vec3 H, float a);
 float GeometrySchlickGGX(float NdotV, float k);
@@ -82,27 +83,33 @@ out vec4 FragColor;
 uniform vec3 viewPos;//position of the camera that render with this shader
 uniform mat4 environmentRotation;//rotation of the environment map
 uniform float ambientStrength;//multiplicator of the ambient light
-  
+uniform bool water;
+uniform float time;
+uniform float seaLevel = 0.94;
+
 uniform sampler2D diffuse;//this name is just to be the same as the non-pbr shader, it represent albedo or base-color
 uniform sampler2D specular;//how metallic is the fragment
 uniform sampler2D roughness;//how rough is the fragment
 uniform sampler2D ao;//ambient occlusion map
-uniform sampler2D normalMap;// tangent normal map 
+uniform sampler2D normalMap;// tangent normal map
+uniform sampler2D waterBump;//water normal map
 
 uniform samplerCube irradianceMap;// irrandiance map to determine diffuse light of a fragment
 uniform samplerCube prefilterMap;//environment map pre-filtered with 5 mip-map with different roughness
-uniform sampler2D   brdfLUT;  //brdf Texture (Weird stuff i am too lazy to learn what it is but i know we need this in the specular pbr calculation)
+uniform sampler2D   brdfLUT;//brdf Texture (Weird stuff i am too lazy to learn what it is but i know we need this in the specular pbr calculation)
 uniform sampler2D   shadowDepthMap;//shadow depth map for the dir light
+
 
 
 void main(){
     //fill material with texture
-    pbr.baseColor = pow(texture(diffuse, uv).rgb, vec3(2.2));
     pbr.alpha = 1;//texture(diffuse, uv).a;
-    pbr.metallic = texture(specular, uv).r;
-    pbr.roughness = texture(roughness, uv).r;
+    pbr.metallic = 0.9;//texture(specular, uv).r;
+    pbr.roughness = 0.9;//texture(roughness, uv).r;
     pbr.ao = 1;//texture(ao, uv).r;
-    pbr.normal = calcNormal();
+    pbr.normal = calcNormal(normalMap);
+    pbr.baseColor = calcColor(pbr.normal);//pow(texture(diffuse, uv).rgb, vec3(2.2));
+
 
     //fragment to eye of the camera vector
     vec3 V = normalize(viewPos - fragPos);
@@ -115,17 +122,17 @@ void main(){
    
     vec3 Lo = vec3(0);
 
-    //points lights
-    for (int i = 0; ((i < int(numberOfLight)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
-    {           
-        Lo += CalcLight(light[i], F0, pbr.normal, fragPos, V);
-    }
-
-    //spots lights
-    for (int i = 0; ((i < int(numberOfSpot)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
-    {           
-        Lo += CalcSpotLight(spotLight[i], F0, pbr.normal, fragPos, V);
-    }
+//    //points lights
+//    for (int i = 0; ((i < int(numberOfLight)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
+//    {           
+//        Lo += CalcLight(light[i], F0, pbr.normal, fragPos, V);
+//    }
+//
+//    //spots lights
+//    for (int i = 0; ((i < int(numberOfSpot)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
+//    {           
+//        //Lo += CalcSpotLight(spotLight[i], F0, pbr.normal, fragPos, V);
+//    }
 
     //directional light
     Lo += CalcDirLight(dirLight, F0, V, lightFragPos);
@@ -264,8 +271,8 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
 
-vec3 calcNormal(){
-    vec3 normal = texture(normalMap, uv).rgb;
+vec3 calcNormal(sampler2D tex){
+    vec3 normal = texture(tex, uv * 0.25).rgb;
 
     //test if normal map is empty or doesn't exist
     if (normal == vec3(0)){
@@ -308,4 +315,70 @@ float calcShadow(vec4 lightFP, vec3 normal, vec3 lightDir){
         }    
     }
     return shadow;
+}
+
+vec3 calcColor(vec3 N){
+    if(water){
+        vec3 normal = texture(normalMap, uv * 32 + time * 0.02 * vec2(1,0)).rgb;
+        
+
+        normal = (normal * 2.0 - 1.0);
+        normal = normalize(TBN * normal);
+        pbr.normal = normal;
+    
+        pbr.roughness = 0.01;
+        pbr.metallic = 1;
+        pbr.alpha = 0.5;
+        
+        return vec3(0.1, 0.4, 0.9); 
+    }
+
+    float angle = max(0, dot(vec3(0,1,0), N));
+    angle = angle * 10 - 9;//range from 0.9 to 1 -> 0 to 1
+    angle = max(min(1, 1 - (angle - 0.6) * 2.5), 0);
+
+    vec3 grass = vec3(0, 1, 0);
+    vec3 rock = vec3(0.3, 0.2,0.1);
+    vec3 sand = vec3(1, 1   , 0.1);
+    vec3 snow = vec3(1);
+
+    vec3 color = mix(grass, rock, 0);
+
+    pbr.roughness = 0.7;
+
+
+    const float limit = 0.9;
+//    if (angle > limit){
+//        color = mix(grass, rock, limit );
+//    }
+
+    if(fragPos.y < 1 + seaLevel && fragPos.y > seaLevel){
+        color = mix(sand, color, fragPos.y - seaLevel);
+    }
+    if(fragPos.y < seaLevel){
+        color = mix(rock, sand, max(fragPos.y, 0));
+    }
+
+    if(fragPos.y > 20){
+        color = mix(color, rock, (fragPos.y - 20) * 0.05);
+        pbr.roughness = 0.95;
+        pbr.metallic = 0.9;
+    }
+    if(fragPos.y > 40){
+        color = rock;
+
+        pbr.roughness = 1;
+        pbr.metallic = 1;
+    }
+
+    if(fragPos.y > 60){
+        pbr.roughness = 0.5;
+        pbr.metallic = 0;
+        color = mix(color, snow, (fragPos.y - 60) * 0.5);   
+    }
+    if(fragPos.y > 62){
+        color = snow;
+    }
+    
+    return color;
 }
