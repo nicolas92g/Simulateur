@@ -33,11 +33,14 @@ protected:
 
 	float seaLevel;
 	uint32_t renderDistance;
+	uint32_t nearDistance;
+	uint32_t middleDistance;
+
 	uint32_t farResolution;
 	uint32_t middleResolution;
 	uint32_t nearResolution;
 
-	std::unordered_map<int, std::map<int, std::unique_ptr<Chunk>>> land;
+	std::unordered_map<int, std::unordered_map<int, std::shared_ptr<Chunk>>> land;
 
 	glm::ivec2 convertPlayerPosToChunkPos(glm::vec3 pos);
 	uint16_t getChunkDistance(glm::ivec2 centralChunk, glm::ivec2 chunk);

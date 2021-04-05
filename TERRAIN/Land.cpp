@@ -15,10 +15,16 @@ Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 	Chunk::genWaterObject();
 
 	this->numberOfThreadMax = 1;
-	this->renderDistance = 10;
+
+	this->renderDistance = 14;
+	this->nearDistance = 2;
+	this->middleDistance = 4;
+
 	this->nearResolution = 8;
 	this->middleResolution = 6;
 	this->farResolution = 4;
+
+	this->seaLevel = 1;
 }
 
 Land::~Land()
@@ -29,7 +35,7 @@ Land::~Land()
 
 void Land::update()
 {
-
+	Chunk::seaLevel = seaLevel;
 	//reload shaders
 	if (reload.isDown()) {
 		shader = new Shader(NICO_SHADERS_PATH"default.vert", NICO_PATH"TERRAIN/terrain.frag");
@@ -40,9 +46,13 @@ void Land::update()
 
 
 	glm::ivec2 centralChunk = convertPlayerPosToChunkPos(cam->getPosition());
+
+	if (this == nullptr)
+		std::cout << "land::this = nullptr\n";
 	
 	//note too far chunks
-	std::list<glm::ivec2> chunksToUnload;
+	std::vector<glm::ivec2> chunksToUnload;
+
 	for (auto itx = land.begin(); itx != land.end(); itx++)
 	{
 		for (auto ity = itx->second.begin(); ity != itx->second.end(); ity++)
@@ -52,6 +62,7 @@ void Land::update()
 			}
 		}
 	}
+
 	//delete those chunks
 	for (auto it = chunksToUnload.begin(); it != chunksToUnload.end(); it++)
 	{
@@ -63,25 +74,19 @@ void Land::update()
 		}
 	}
 
-	//create new chunk
-	/*for (int i = -1; i <= 1; i++)
-	{
-		for (int j = -1; j <= 1; j++)
-		{
-			const ivec2 c = centralChunk + ivec2(i, j);
-
-			if (!isLoaded(c))
-				land[c.x][c.y] = std::make_unique<Chunk>(c);
-		}	
-	}*/
 	//if there is too much loading threads then stop everything
 	if (Chunk::getNumberOfWorkingThreads() >= this->numberOfThreadMax) {
 		return;
 	}
 
+
 	//check the first chunk
 	if (!isLoaded(centralChunk)) {
-		land[centralChunk.x][centralChunk.y] = std::make_unique<Chunk>(centralChunk);
+		land[centralChunk.x][centralChunk.y] = std::make_unique<Chunk>(centralChunk, nearResolution);
+		return;
+	}
+	if (land[centralChunk.x][centralChunk.y]->getResolution() != nearResolution) {
+		land[centralChunk.x][centralChunk.y]->setResolution(nearResolution);
 		return;
 	}
 
@@ -98,9 +103,10 @@ void Land::update()
 		ivec2 directionOfTheLoading = ivec2(0);
 
 		uint32_t resolutionOfChunks = nearResolution;
-		if (i > 3)
+
+		if (i > nearDistance)
 			resolutionOfChunks = middleResolution;
-		if (i > 5)
+		if (i > middleDistance)
 			resolutionOfChunks = farResolution;
 
 		for (size_t j = 0; j < 8 * i; j++)
@@ -123,8 +129,12 @@ void Land::update()
 
 			chunkToLoad += directionOfTheLoading;
 
+			if (land.find(chunkToLoad.x) == land.end()) {
+				land.insert(std::make_pair(chunkToLoad.x, 0));
+			}
+
 			if (!isLoaded(chunkToLoad)) {
-				land[chunkToLoad.x][chunkToLoad.y] = std::make_unique<Chunk>(chunkToLoad, resolutionOfChunks);
+				land[chunkToLoad.x][chunkToLoad.y] = std::make_shared<Chunk>(chunkToLoad, resolutionOfChunks);
 				return;
 			}
 
@@ -158,6 +168,7 @@ void Land::draw(Shader* shader)
 	glDepthFunc(GL_LESS);
 
 	shader->set("model", glm::translate(vec3(0)));
+
 	for (auto y = land.begin(); y != land.end(); y++)
 	{
 		for (auto x = y->second.begin(); x != y->second.end(); x++)
@@ -172,6 +183,7 @@ void Land::draw(Shader* shader)
 
 	for (auto y = land.begin(); y != land.end(); y++)
 	{
+		
 		for (auto x = y->second.begin(); x != y->second.end(); x++)
 		{
 			x->second->drawWater(shader);

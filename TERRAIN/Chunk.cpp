@@ -95,7 +95,7 @@ bool Chunk::isReloadingRes() const
 void Chunk::CalculateHeights()
 {
 	//fill vertical Pos with one more pos in each direction to determine normals
-	const uint32_t offset = pow(2, MAX_RESOLUTION - ResPowerTwo);
+	const uint32_t offset = 1;// pow(2, MAX_RESOLUTION - ResPowerTwo);
 	const double resize = 1.0 / ((double)resolution / (double)CHUNK_SIZE);
 	const double xOffset = (double)chunkGridPos.x * (double)CHUNK_SIZE;
 	const double yOffset = (double)chunkGridPos.y * (double)CHUNK_SIZE;
@@ -135,14 +135,14 @@ void Chunk::CalculateHeights()
 
 void Chunk::CalculateVertices()
 {
-	const float offset = pow(2, MAX_RESOLUTION - ResPowerTwo);
+	const float offset = 1;// pow(2, MAX_RESOLUTION - ResPowerTwo);
 	const uint32_t length = NUMBER_OF_VERTICES;
 	const float resize = 1.0f / ((float)resolution / (float)CHUNK_SIZE);
 	const float xOffset = chunkGridPos.x * CHUNK_SIZE;
 	const float yOffset = chunkGridPos.y * CHUNK_SIZE;
 
 	vertices.clear();
-	vertices.resize((size_t)length * (size_t)length);
+	vertices.resize((size_t)length * (size_t)length + 10000);
 
 	for (uint16_t x = 0; x < length; x++) {
 		for (uint16_t y = 0; y < length; y++)
@@ -254,12 +254,7 @@ void Chunk::drawCall(Shader* shader, Chunk* chunk)
 
 	GLenum rendering;
 
-	if (*lines)
-		rendering = GL_TRIANGLES;
-	else
-		rendering = GL_LINES;
-
-	glDrawElements(rendering, chunk->resolution * chunk->resolution * 6, GL_UNSIGNED_INT, (void*)0);
+	glDrawElements(GL_TRIANGLES, chunk->resolution * chunk->resolution * 6, GL_UNSIGNED_INT, (void*)0);
 }
 
 void Chunk::generatingDrawCall(nico::Shader* shader, Chunk* chunk)
