@@ -48,7 +48,7 @@ protected:
 
 	//chunk
 	glm::ivec2 chunkGridPos;
-	std::unordered_map<int, std::unordered_map<int, double>> heights;
+	std::unordered_map<short, std::unordered_map<short, double>> heights;
 	noise::module::Perlin noise;
 
 	uint32_t resolution;//stock the current resolution of the chunk
