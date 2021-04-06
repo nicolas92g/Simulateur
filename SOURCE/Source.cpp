@@ -32,7 +32,6 @@ int exempleDeProgrammeComplet()
 	//---------------------------------------
 	Renderer render;// ! //on créé l'afficheur 3D
 	Camera player(vec3(3, 6, -2));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
-	player.setZFar(4000);
 	render.useCamera(&player);// ! //on dit a notre afficheur qu'il doit afficher dans cette camera
 
 	//creation du cube
@@ -117,12 +116,23 @@ int exempleDeProgrammeComplet()
 		
 		land.update();//met a jour le terrain
 		land.draw();//affiche le terrain
+		land.setSeaLevel((double)input);
 
 		
-		if (player.getPosition().y > 100)
-			player.setZNear(2);//modifie la distance mimimale que peut percevoir la camera
+		if (player.getPosition().y > 200)
+			player.setZNear(10);//modifie la distance mimimale que peut percevoir la camera
 		else
 			player.setZNear(0.2);
+
+		if (player.getPosition().y > 2000)
+			player.setZFar(10000);
+		else
+			player.setZFar(4000);
+
+		if(render.Window()->Key(GLFW_KEY_F11)){
+			render.Window()->setSize(1920, 1080);
+			render.Window()->setPos(0,0);
+		}
 
 
 		//2d

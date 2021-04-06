@@ -86,7 +86,7 @@ uniform mat4 environmentRotation;//rotation of the environment map
 uniform float ambientStrength;//multiplicator of the ambient light
 uniform bool water;
 uniform float time;
-uniform float seaLevel = 0.94;
+uniform float seaLevel;
 
 uniform sampler2D diffuse;//this name is just to be the same as the non-pbr shader, it represent albedo or base-color
 uniform sampler2D specular;//how metallic is the fragment
@@ -106,10 +106,10 @@ Material rock;
 Material sand;
 
 #define GROUND_SIZE 0.2
+#define FOG_DISTANCE 3300
 
 void main(){
-    //if(distance(vec3(viewPos.x, 2000 - viewPos.y, viewPos.z), fragPos) > 3500){discard;}
-
+    
     //fill material with texture
     pbr.alpha = 1;//texture(diffuse, uv).a;
     pbr.metallic = 0.9;//texture(specular, uv).r;
@@ -119,7 +119,7 @@ void main(){
     sand.metallic = 0.5;
     sand.roughness = 0.6;
     sand.normal = calcNormal(normalMap, GROUND_SIZE);
-    sand.baseColor = vec3(1, 1   , 0.1);
+    sand.baseColor = vec3(1, 1, 0.1);
 
     rock.metallic = 0.7;
     rock.roughness = 0.9;
@@ -138,13 +138,12 @@ void main(){
 
     calcColor(pbr.normal); 
 
-    pbr.alpha = 1;
     pbr.ao = 1;
 
-    float dst = distance(vec3(viewPos.x, 2000 - viewPos.y, viewPos.z), fragPos);
+    float dst = distance(vec3(viewPos.x, 0, viewPos.z), fragPos);
 
-    if(dst > 3500){
-        pbr.alpha = 1 - (dst - 3500) * 0.002;
+    if(dst > FOG_DISTANCE){
+        pbr.alpha = 1 - (dst - FOG_DISTANCE) * 0.002;
     }
 
     
@@ -196,7 +195,7 @@ void main(){
 
     vec3 ambient = (kD * diffuseValue + specular) * pbr.ao;
 
-    vec3 color = (ambient /* ambientStrength*/) + Lo;
+    vec3 color = (ambient * ambientStrength) + Lo;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
    
@@ -205,17 +204,17 @@ void main(){
 
 void calcColor(vec3 N){
     if(water){
-        vec3 normal = texture(waterBump, uv * 32 + sin(time) * 0.02 * vec2(0.4,1)).rgb;
-        vec3 normal2 = texture(waterBump, (vec2(1, 1) - uv) * 32 + cos(time) * 0.02 * vec2(1,0)).rgb;
+        vec3 normal = texture(waterBump, uv * 32 + (time) * 0.02 * vec2(-0.4,1)).rgb;
+        vec3 normal2 = texture(waterBump, (vec2(1, 1) - uv) * 32 + (time) * 0.01 * vec2(-1,0.2)).rgb;
 
-        normal = mix(normal, normal2, uv.x);
+        normal = mix(normal, normal2, 0.5);
         normal = (normal * 2.0 - 1.0);
         normal = normalize(TBN * normal);
         
     
         pbr.roughness = 0.005;
         pbr.metallic = 1;
-        pbr.alpha = 0.7;
+        pbr.alpha = 0.8;
         pbr.normal = normal;
         
         pbr.baseColor = vec3(0.1, 0.4, 0.9);
@@ -235,27 +234,37 @@ void calcColor(vec3 N){
 //        pbr = grass;
 //    }
 
-    if(fragPos.y < 2 + seaLevel && fragPos.y > seaLevel){
-        pbr = mixM(sand, pbr, fragPos.y - seaLevel * 2);
+    float offset = (fragPos.x * 0.01 - round(fragPos.x * 0.01));
+    offset = abs(cos(offset * 15) + 0.7) * 1;
+
+    
+
+    if(fragPos.y < 2 + seaLevel + offset && fragPos.y > seaLevel + offset){
+        pbr = mixM(sand, pbr, fragPos.y - (seaLevel + offset));
     }
-    if(fragPos.y < seaLevel){
+    if(fragPos.y < seaLevel + offset){
         pbr = mixM(rock, sand, max(fragPos.y, 0));
     }
 
-    if(fragPos.y > 20){
-        pbr = mixM(pbr, rock, (fragPos.y - 20) * 0.05);
+    offset = offset * -4 ;
+
+    if(fragPos.y > 20 + offset){
+        pbr = mixM(pbr, rock, (fragPos.y - 20 - offset) / 18);
     }
-    if(fragPos.y > 40){
+    if(fragPos.y > 40 + offset){
         pbr = rock;
 
     }
 
-    if(fragPos.y > 60){ 
-        pbr = mixM(pbr, snow, (fragPos.y - 60) * 0.1);   
+    offset *= -0.6;
+
+    if(fragPos.y > 60 + offset){ 
+        pbr = mixM(pbr, snow, (fragPos.y - 60 - offset) * 0.1);   
     }
-    if(fragPos.y > 70){
+    if(fragPos.y > 70 + offset){
         pbr = snow;
     }
+    pbr.alpha = 1;
 }
 
 vec3 CalcDirLight(DirLight light, vec3 F0, vec3 viewDir, vec4 lightFragmentPosition){
