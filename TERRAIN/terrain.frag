@@ -62,8 +62,9 @@ vec3 CalcDirLight(DirLight light, vec3 F0, vec3 viewDir, vec4 lightFragmentPosit
 vec3 CalcSpotLight(SpotLight spotLight, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir);
 vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir);
 float calcShadow(vec4 lightFP, vec3 normal, vec3 lightDir);
-vec3 calcNormal(sampler2D tex);
-vec3 calcColor(vec3 N);
+vec3 calcNormal(sampler2D tex, float uvFactor);
+void calcColor(vec3 N);
+Material mixM(Material a, Material b, float factor);
 
 float DistributionGGX(vec3 N, vec3 H, float a);
 float GeometrySchlickGGX(float NdotV, float k);
@@ -99,16 +100,58 @@ uniform samplerCube prefilterMap;//environment map pre-filtered with 5 mip-map w
 uniform sampler2D   brdfLUT;//brdf Texture (Weird stuff i am too lazy to learn what it is but i know we need this in the specular pbr calculation)
 uniform sampler2D   shadowDepthMap;//shadow depth map for the dir light
 
+Material snow;
+Material grass;
+Material rock;
+Material sand;
 
+#define GROUND_SIZE 0.2
 
 void main(){
+    //if(distance(vec3(viewPos.x, 2000 - viewPos.y, viewPos.z), fragPos) > 3500){discard;}
+
     //fill material with texture
     pbr.alpha = 1;//texture(diffuse, uv).a;
     pbr.metallic = 0.9;//texture(specular, uv).r;
     pbr.roughness = 0.9;//texture(roughness, uv).r;
-    pbr.ao = 1;//texture(ao, uv).r;
-    pbr.normal = calcNormal(normalMap);
-    pbr.baseColor = calcColor(pbr.normal);//pow(texture(diffuse, uv).rgb, vec3(2.2));
+    pbr.normal = calcNormal(normalMap, GROUND_SIZE);
+
+    sand.metallic = 0.5;
+    sand.roughness = 0.6;
+    sand.normal = calcNormal(normalMap, GROUND_SIZE);
+    sand.baseColor = vec3(1, 1   , 0.1);
+
+    rock.metallic = 0.7;
+    rock.roughness = 0.9;
+    rock.normal = calcNormal(normalMap, GROUND_SIZE);
+    rock.baseColor = vec3(0.5, 0.2, 0.1);
+  
+    snow.metallic = 0;
+    snow.roughness = 0.2;
+    snow.normal = calcNormal(normalMap, GROUND_SIZE);
+    snow.baseColor = vec3(1);
+
+    grass.metallic = 0.8;
+    grass.roughness = 0.8;
+    grass.normal = calcNormal(normalMap, GROUND_SIZE);
+    grass.baseColor = vec3(0.05, 0.6, 0.0);
+
+    calcColor(pbr.normal); 
+
+    pbr.alpha = 1;
+    pbr.ao = 1;
+
+    float dst = distance(vec3(viewPos.x, 2000 - viewPos.y, viewPos.z), fragPos);
+
+    if(dst > 3500){
+        pbr.alpha = 1 - (dst - 3500) * 0.002;
+    }
+
+    
+   
+    
+
+
 
 
     //fragment to eye of the camera vector
@@ -153,11 +196,66 @@ void main(){
 
     vec3 ambient = (kD * diffuseValue + specular) * pbr.ao;
 
-    vec3 color = (ambient * ambientStrength) + Lo;
+    vec3 color = (ambient /* ambientStrength*/) + Lo;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
    
     FragColor = vec4(color, pbr.alpha);
+}
+
+void calcColor(vec3 N){
+    if(water){
+        vec3 normal = texture(waterBump, uv * 32 + sin(time) * 0.02 * vec2(0.4,1)).rgb;
+        vec3 normal2 = texture(waterBump, (vec2(1, 1) - uv) * 32 + cos(time) * 0.02 * vec2(1,0)).rgb;
+
+        normal = mix(normal, normal2, uv.x);
+        normal = (normal * 2.0 - 1.0);
+        normal = normalize(TBN * normal);
+        
+    
+        pbr.roughness = 0.005;
+        pbr.metallic = 1;
+        pbr.alpha = 0.7;
+        pbr.normal = normal;
+        
+        pbr.baseColor = vec3(0.1, 0.4, 0.9);
+        return;
+    }
+
+    float angle = max(0, dot(vec3(0,1,0), N));
+    angle = angle * 10 - 9;//range from 0.9 to 1 -> 0 to 1
+    angle = max(min(1, 1 - (angle - 0.6) * 2.5), 0);
+
+    pbr = grass;   
+
+
+
+//    const float limit = 0.6;
+//    if (angle > limit){
+//        pbr = grass;
+//    }
+
+    if(fragPos.y < 2 + seaLevel && fragPos.y > seaLevel){
+        pbr = mixM(sand, pbr, fragPos.y - seaLevel * 2);
+    }
+    if(fragPos.y < seaLevel){
+        pbr = mixM(rock, sand, max(fragPos.y, 0));
+    }
+
+    if(fragPos.y > 20){
+        pbr = mixM(pbr, rock, (fragPos.y - 20) * 0.05);
+    }
+    if(fragPos.y > 40){
+        pbr = rock;
+
+    }
+
+    if(fragPos.y > 60){ 
+        pbr = mixM(pbr, snow, (fragPos.y - 60) * 0.1);   
+    }
+    if(fragPos.y > 70){
+        pbr = snow;
+    }
 }
 
 vec3 CalcDirLight(DirLight light, vec3 F0, vec3 viewDir, vec4 lightFragmentPosition){
@@ -271,8 +369,8 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
 
-vec3 calcNormal(sampler2D tex){
-    vec3 normal = texture(tex, uv * 0.25).rgb;
+vec3 calcNormal(sampler2D tex, float uvFactor){
+    vec3 normal = texture(tex, uv * uvFactor).rgb;
 
     //test if normal map is empty or doesn't exist
     if (normal == vec3(0)){
@@ -316,69 +414,15 @@ float calcShadow(vec4 lightFP, vec3 normal, vec3 lightDir){
     }
     return shadow;
 }
+Material mixM(Material a, Material b, float factor){
+    factor = max(min(factor, 1), 0);
+    Material ret;
+    ret.baseColor = mix(a.baseColor, b.baseColor, factor);
+    ret.metallic = mix(a.metallic, b.metallic, factor);
+    ret.roughness = mix(a.roughness, b.roughness, factor);
+    ret.normal = mix(a.normal, b.normal, factor);
+    ret.alpha = mix(a.alpha, b.alpha, factor);
+    ret.ao = 1;
 
-vec3 calcColor(vec3 N){
-    if(water){
-        vec3 normal = texture(normalMap, uv * 32 + time * 0.02 * vec2(1,0)).rgb;
-        
-
-        normal = (normal * 2.0 - 1.0);
-        normal = normalize(TBN * normal);
-        pbr.normal = normal;
-    
-        pbr.roughness = 0.01;
-        pbr.metallic = 1;
-        pbr.alpha = 0.5;
-        
-        return vec3(0.1, 0.4, 0.9); 
-    }
-
-    float angle = max(0, dot(vec3(0,1,0), N));
-    angle = angle * 10 - 9;//range from 0.9 to 1 -> 0 to 1
-    angle = max(min(1, 1 - (angle - 0.6) * 2.5), 0);
-
-    vec3 grass = vec3(0, 1, 0);
-    vec3 rock = vec3(0.3, 0.2,0.1);
-    vec3 sand = vec3(1, 1   , 0.1);
-    vec3 snow = vec3(1);
-
-    vec3 color = mix(grass, rock, 0);
-
-    pbr.roughness = 0.7;
-
-
-    const float limit = 0.9;
-//    if (angle > limit){
-//        color = mix(grass, rock, limit );
-//    }
-
-    if(fragPos.y < 1 + seaLevel && fragPos.y > seaLevel){
-        color = mix(sand, color, fragPos.y - seaLevel);
-    }
-    if(fragPos.y < seaLevel){
-        color = mix(rock, sand, max(fragPos.y, 0));
-    }
-
-    if(fragPos.y > 20){
-        color = mix(color, rock, (fragPos.y - 20) * 0.05);
-        pbr.roughness = 0.95;
-        pbr.metallic = 0.9;
-    }
-    if(fragPos.y > 40){
-        color = rock;
-
-        pbr.roughness = 1;
-        pbr.metallic = 1;
-    }
-
-    if(fragPos.y > 60){
-        pbr.roughness = 0.5;
-        pbr.metallic = 0;
-        color = mix(color, snow, (fragPos.y - 60) * 0.5);   
-    }
-    if(fragPos.y > 62){
-        color = snow;
-    }
-    
-    return color;
+    return ret;
 }

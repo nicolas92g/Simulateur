@@ -5,7 +5,6 @@ nico::Renderer::Renderer() :
 	//constructors of the vars
 #	ifdef NICO_RENDERING_DEBUG
 	win(4, 3, true, 4),//start open gl in debug mode
-	ghostMode(&win, GHOST_VIEW_MODE_KEY, false),//keys switch to active ghost mode 
 	reloadShaders(&win, GLFW_KEY_F5),
 #	else
 	win(4, 3, false, 4),//start open gl in release mode
@@ -33,13 +32,6 @@ nico::Renderer::Renderer() :
 	initShadowSystem(10000);
 	createPlaneMesh();
 	setShaderConstantsUniforms(this->shader);
-
-	//create a camera object to see where is the camera in ghost mode
-#	ifdef NICO_RENDERING_DEBUG
-
-	ghostView.setZFar(1000);
-	CameraObject = new Object3d(new Model("C:/Users/nicol/OneDrive/Documents/Graphismes/models/camera/camera.obj"));
-#	endif
 	
 	//enable default depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -63,9 +55,6 @@ nico::Renderer::Renderer() :
 
 nico::Renderer::~Renderer()
 {
-#	ifdef NICO_RENDERING_DEBUG
-	delete CameraObject;
-#	endif
 }
 
 void nico::Renderer::update()
@@ -85,27 +74,6 @@ void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t vi
 	//update camera
 #	ifdef NICO_RENDERING_DEBUG
 	
-	if (ghostMode.justSwitch()) {
-		if (ghostMode) addEntity(CameraObject);
-		else removeEntity(CameraObject);
-		ghostView.setYaw(cam->getYaw());
-		ghostView.setPitch(cam->getPitch() - .3f);
-		ghostView.setPosition(cam->getPosition() + glm::vec3(0, 1, 0));
-	}
-
-	if (ghostMode) {
-		ghostView.classicKeyboardControls(Window(), 5);
-		ghostView.classicMouseControls(Window(), 0.004f);
-		ghostView.calculateMatrix(Window());
-		ghostView.sendToShader(shader);
-
-		CameraObject->setPos(cam->getPosition());
-		CameraObject->setRotation(-glm::cross(glm::normalize(cam->getLook()), vec3(0, 0, 1)), glm::acos(glm::dot(glm::normalize(cam->getLook()), vec3(0, 0, 1))));
-	}
-	else {
-		cam->calculateMatrix(&win);
-		cam->sendToShader(shader);
-	}
 
 	//press F5 to reload pbr shader
 	if (reloadShaders.isDown()) {
@@ -118,11 +86,11 @@ void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t vi
 
 	reloadShaders.getState();
 
-#	else
+#	endif
 	//camera :
 	cam->calculateMatrix(&win);
 	cam->sendToShader(shader);
-#	endif
+
 
 	sendLightsToShader(shader);
 
@@ -435,6 +403,30 @@ void nico::Renderer::loadEnvironmentMap(const char* path, int res)
 	updateBRDFpreComputing();
 }
 
+void nico::Renderer::drawEnvironmentMapAsSkyMap()
+{
+	glDepthFunc(GL_LEQUAL);
+
+	glDepthMask(GL_FALSE);
+
+	skyMapShader.set("hdr", true);
+	skyMapShader.set("view", glm::mat4(glm::mat3(cam->getView())));
+	skyMapShader.set("projection", cam->getProjection());
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
+
+	bool cull = glIsEnabled(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+
+	cube.draw(&skyMapShader);
+
+	if (cull)
+		glEnable(GL_CULL_FACE);
+
+	glDepthMask(GL_TRUE);
+}
+
 void nico::Renderer::updateIrradianceMap()
 {
 
@@ -640,27 +632,6 @@ void nico::Renderer::createPlaneMesh()
 
 void nico::Renderer::drawObjects()
 {
-	//depth test function :
-	glDepthFunc(GL_LEQUAL);
-
-	glDepthMask(GL_FALSE);
-	
-	skyMapShader.set("hdr", true);
-	skyMapShader.set("view", glm::mat4(glm::mat3(cam->getView())));
-	skyMapShader.set("projection", cam->getProjection());
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, environmentMap);
-
-	bool cull = glIsEnabled(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
-
-	cube.draw(&skyMapShader);
-
-	if (cull)
-		glEnable(GL_CULL_FACE);
-
-	glDepthMask(GL_TRUE);
 
 	//TEST A 2D TEXTURE HERE
 	/*shader->use();

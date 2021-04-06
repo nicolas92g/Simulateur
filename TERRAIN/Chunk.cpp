@@ -112,10 +112,11 @@ void Chunk::CalculateHeights()
 
 			//the array is filled in a way that we can add some heights between previous values
 
-			const float A = (noise.GetValue(X * 0.001, 0, Y * 0.001)) * 60.0f;
-			heights[x][y] = A +
-				abs(noise.GetValue(X * 0.01, 0, Y * 0.01)) +
-				(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0;
+			const float A = (std::max(0.8, noise.GetValue(X * 0.0005, 0, Y * 0.0005)) * 20 - 18);
+
+			heights[x][y] = (noise.GetValue(X * 0.001, 0, Y * 0.001)) * 60.0f +
+				(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0 + 
+				A * 10;
 
 
 			//avoid Z-fighting
@@ -248,9 +249,16 @@ void Chunk::drawCall(Shader* shader, Chunk* chunk)
 	shader->use();
 	glBindVertexArray(chunk->VAO);
 
-	shader->set("normalMap", 3);
-	glActiveTexture(GL_TEXTURE3);
-	chunk->normal->bind();
+	shader->set("waterBump", 0);
+	glActiveTexture(GL_TEXTURE0);
+	Chunk::waterBump->bind();
+
+	shader->set("normalMap", 1);
+	glActiveTexture(GL_TEXTURE1);
+	Chunk::normal->bind();
+
+
+
 
 	GLenum rendering;
 
@@ -305,6 +313,7 @@ void Chunk::genWaterObject()
 
 	normal = new Texture(NICO_PATH"TERRAIN/normal.png");
 	waterBump = new Texture(NICO_PATH"TERRAIN/water.jpg");
+
 }
 
 void Chunk::destroyWaterObject()

@@ -217,18 +217,8 @@ int openGL() {
 			
 		
 		//lights and objects calculations :
-#		ifdef NICO_RENDERING_DEBUG
-		if (render.cameraIsEnabled()) {
-			player.classicKeyboardControls(render.Window(), 5);
-			player.classicMouseControls(render.Window(), 0.004f);
-		}
-		else {
-			TextRenderer::textToPrint += " ghost mode ";
-		}
-#		else
 		player.classicKeyboardControls(render.Window(), 5);
 		player.classicMouseControls(render.Window(), 0.004f);
-#		endif
 
 		handSpot.setPos(player.getPosition() + player.getRightDirection());
 		handSpot.setDirection(player.getLook());

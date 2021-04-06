@@ -112,11 +112,19 @@ namespace nico {
 		 */
 		void loadEnvironmentMap(const char* path, int res = 2048);
 		/**
+		 * @brief draw the environment map as a sky map
+		 */
+		void drawEnvironmentMapAsSkyMap();
+		/**
 		 * this rotate the skyMap
 		 * \param angle
 		 * \param vec3
 		 */
 		void setSkyMapRotation(float angle, glm::vec3 rotAxe = glm::vec3(0,1,0));
+		/**
+		 * @brief set the light power of the environment map
+		 * \param ambientStrength
+		 */
 		void setAmbientStrength(float ambientStrength);
 		/**
 		 * @brief set the shaders constant uniforms
@@ -133,7 +141,6 @@ namespace nico {
 		void sendLightsToShader(Shader* shader);
 
 		//accessors
-
 		/**
 		 * return a pointer to the current shader of the renderer
 		 * \return 
@@ -166,14 +173,11 @@ namespace nico {
 		
 		
 		
-		//CAMERAS
+		//CAMERA
 		Camera* cam;//camera to use to render
 
 #		ifdef NICO_RENDERING_DEBUG
-		Camera ghostView;//allow to spectate the rendering
-		KeySwitch ghostMode;//ghost view mode ?
 		Key reloadShaders;//reload the shaders key
-		Object3d* CameraObject;//object to render at the camera place in ghost view mode
 #		endif
 
 		//DYNAMIC SHADOWS OF THE SUN
@@ -222,11 +226,7 @@ namespace nico {
 		
 
 	public:
-
-#		ifdef NICO_RENDERING_DEBUG
-		//need to define NICO_RENDERING_DEBUG to use this call 
-		const bool cameraIsEnabled() { return !ghostMode; }
-#		endif		
+	
 	};
 
 
