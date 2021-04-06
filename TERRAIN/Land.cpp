@@ -20,7 +20,7 @@ Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 	this->nearDistance = 2;
 	this->middleDistance = 4;
 
-	this->nearResolution = 8;
+	this->nearResolution = 7;
 	this->middleResolution = 6;
 	this->farResolution = 4;
 
