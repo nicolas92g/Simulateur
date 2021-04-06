@@ -31,7 +31,6 @@ protected:
 	nico::Camera* cam;
 	uint16_t numberOfThreadMax;
 
-	float seaLevel;
 	uint32_t renderDistance;
 	uint32_t nearDistance;
 	uint32_t middleDistance;

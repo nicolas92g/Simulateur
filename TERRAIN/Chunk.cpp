@@ -4,6 +4,7 @@
 #define NUMBER_OF_VERTICES resolution + 1 // this is the number of vertices per chunk's edge
 
 float Chunk::offsetBetweenSeaAndLand = 0.01f;
+float Chunk::seaLevel = 1.0f;
 
 using namespace nico;
 using namespace glm;
@@ -15,7 +16,6 @@ Chunk::Chunk(ivec2 pos, uint32_t res)
 	this->ResPowerTwo = res;
 	this->resolution = pow(2, ResPowerTwo);
 	this->maxPowerTwo = 0;
-	this->seaLevel = 0.9f;
 	this->VAO = NULL;
 	this->VBO = NULL;
 	this->EBO = NULL;

@@ -3,7 +3,7 @@
 using namespace nico;
 using namespace glm;
 
-float Chunk::seaLevel = 1;
+
 
 Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 {
@@ -24,7 +24,6 @@ Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 	this->middleResolution = 6;
 	this->farResolution = 4;
 
-	this->seaLevel = 1;
 }
 
 Land::~Land()
@@ -35,7 +34,8 @@ Land::~Land()
 
 void Land::update()
 {
-	Chunk::seaLevel = seaLevel;
+	shader->set("seaLevel", Chunk::seaLevel);
+
 	//reload shaders
 	if (reload.isDown()) {
 		shader = new Shader(NICO_SHADERS_PATH"default.vert", NICO_PATH"TERRAIN/terrain.frag");
@@ -163,7 +163,7 @@ void Land::draw(Shader* shader)
 	render->prepareShaderBeforeDraw(shader);
 	render->sendLightsToShader(shader);
 	shader->set<float>("time", glfwGetTime());
-	shader->set("seaLevel", seaLevel);
+	shader->set("seaLevel", Chunk::seaLevel);
 
 	glDepthFunc(GL_LESS);
 
@@ -206,12 +206,12 @@ void Land::useCamera(nico::Camera* cam)
 
 void Land::setSeaLevel(float seaLevel)
 {
-	this->seaLevel = seaLevel;
+	Chunk::seaLevel = seaLevel;
 }
 
 float Land::getSeaLevel() const
 {
-	return seaLevel;
+	return Chunk::seaLevel;
 }
 
 glm::ivec2 Land::convertPlayerPosToChunkPos(glm::vec3 pos)
