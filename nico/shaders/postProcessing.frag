@@ -3,6 +3,8 @@
 
 out vec4 FragColor;
 in vec2 uv;
+uniform mat4 view;
+uniform mat4 invProj;
 
 //inputs
 uniform float zNear;
@@ -11,6 +13,9 @@ uniform vec3 viewPos;
 uniform vec3 boxPos;
 uniform vec3 boxScale;
 uniform vec3 look;
+uniform float fov;
+uniform int height;
+uniform int width;
 
 //textures
 uniform sampler2D rendering;
@@ -18,6 +23,8 @@ uniform sampler2D depthMap;
 uniform sampler2D ppDepthMap;
 uniform sampler2D fragDirMap;
 uniform sampler3D noise;
+uniform sampler2D rayDir;
+
 
 //parameters
 const float densityThreshold = 0.01;
@@ -50,35 +57,47 @@ bool BBoxIntersect(const vec3 boxMin, const vec3 boxMax, const Ray r, out Hit hi
 vec2 rayBoxDistance(vec3 boundsMin, vec3 boundsMax, vec3 rayOrigin, vec3 rayDir);
 float sampleDensity(vec3 position);
 float getRealZ(float depthBufferValue);
+vec3 getRayDir();
     
 void main()
 {
     //get the distance from the camera of the fragment
     float ppDepth = texture(ppDepthMap, uv).r;
     float RDepth = texture(depthMap, uv).r;
-    vec3 V = texture(fragDirMap, uv).rgb;
+
+    vec3 V = getRayDir();
 
     FragColor = texture(rendering, uv);
 
-//    float depth = getRealZ(RDepth);
-//
-//    if((ppDepth < RDepth)){
-//        FragColor.rgb = vec3(1, 0.6, 0.8);
-//    }
-//
-//    vec2 dst = rayBoxDistance(boxPos - boxScale / 2, boxPos + boxScale / 2, viewPos, V);
-//    
-//    float dstLimit = min(depth - dst.x, dst.y);
-//    float dstTravelled = 0;
-//    float stepSize = dst.y / NUM_STEP;
-//
-//    float totalDensity = 0;
-//    while(dstTravelled < dstLimit){
-//        vec3 rayPos = viewPos + V * (dstTravelled + dst.x);
-//        totalDensity += sampleDensity(rayPos) * stepSize;
-//    }
-//    float transmittance = exp(-totalDensity);
-//
+    float depth = getRealZ(RDepth);
+
+    vec2 dst = rayBoxDistance(boxPos - boxScale / 2, boxPos + boxScale / 2, viewPos, V);
+    
+    Ray R;R.dir = V;R.o = viewPos;
+    Hit H;
+
+    vec3 boxScale = vec3(0.1, 0.1, 0.1);
+    bool inter = BBoxIntersect(boxPos - boxScale / 2, boxPos + boxScale / 2, R, H);
+    dst.x = H.tmin;
+    dst.y = H.tmax;
+    
+
+    if(inter){
+        FragColor.rgb = vec3(0,1,0);
+    }
+
+    float dstLimit = min(depth - dst.x, dst.y);
+    float dstTravelled = 0;
+    float stepSize = dst.y / NUM_STEP;
+
+    float totalDensity = 0;
+    while(dstTravelled < dstLimit){
+        vec3 rayPos = viewPos + V * (dstTravelled + dst.x);
+        totalDensity += sampleDensity(rayPos) * stepSize;
+    }
+    float transmittance = exp(-totalDensity);
+
+    FragColor.rgb = vec3(transmittance);
     FragColor.a = 1;
 }   
 //x = dst to box , y = dst inside box
@@ -110,4 +129,11 @@ float getRealZ(float depthBufferValue){
     depthBufferValue = 2.0 * depthBufferValue - 1.0;
     float zLinear = 2.0 * zNear * zFar / (zFar + zNear - depthBufferValue * (zFar - zNear));
     return zLinear;
+}
+
+vec3 getRayDir(){
+    vec2 sc = uv * 2.0 - 1.0;//shift interval from [0, 1] to [-1, 1]
+    vec4 camera =  view * (invProj) * vec4(sc, 1, 1);
+   
+    return normalize(camera.xyz);
 }

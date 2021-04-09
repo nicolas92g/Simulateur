@@ -50,10 +50,13 @@ protected:
 	glm::ivec2 chunkGridPos;
 	std::unordered_map<short, std::unordered_map<short, double>> heights;
 	noise::module::Perlin noise;
+	noise::module::RidgedMulti ridged;
 
 	uint32_t resolution;//stock the current resolution of the chunk
 	uint8_t ResPowerTwo;// 2**(this var) == resolution
 	uint32_t maxPowerTwo;//stock the biggest resolution the chunk was(in the 2**this way)
+	bool containWater;
+	double temperature;
 
 	static nico::Texture* normal;//land normal map
 	static nico::Texture* waterBump;//water normal map

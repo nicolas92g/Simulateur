@@ -3,6 +3,7 @@
 #define MAX_NUMBER_OF_SPOT 20
 #define MAX_NUMBER_OF_LIGHT 20
 
+
 //OBJECTS 
 struct SpotLight {
     vec3 position;
