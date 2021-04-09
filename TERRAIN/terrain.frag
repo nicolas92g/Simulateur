@@ -87,6 +87,7 @@ uniform float ambientStrength;//multiplicator of the ambient light
 uniform bool water;
 uniform float time;
 uniform float seaLevel;
+uniform float temperature;
 
 uniform sampler2D diffuse;//this name is just to be the same as the non-pbr shader, it represent albedo or base-color
 uniform sampler2D specular;//how metallic is the fragment
@@ -177,7 +178,7 @@ void main(){
 //    }
 
     //directional light
-    Lo += CalcDirLight(dirLight, F0, V, lightFragPos);
+    //Lo += CalcDirLight(dirLight, F0, V, lightFragPos);
 
     vec3 F = fresnelSchlickRoughness(max(dot(pbr.normal, V), 0), F0, pbr.roughness);
     
@@ -200,11 +201,17 @@ void main(){
     color = pow(color, vec3(1.0/2.2));
    
     FragColor = vec4(color, pbr.alpha);
+
+    if(viewPos.y < seaLevel){
+        
+        float dst = distance(fragPos, viewPos);
+        FragColor.rgb = mix(FragColor.rgb, vec3(0.1, 0.3, 0.9),  max(dst * 0.02, 1));
+    }
 }
 
 void calcColor(vec3 N){
     if(water){
-        vec3 normal = texture(waterBump, uv * 32 + (time) * 0.02 * vec2(-0.4,1)).rgb;
+        vec3 normal = texture(waterBump, uv * 32 + (time + cos(time) * 0.1) * 0.02 * vec2(-0.4,1)).rgb;
         vec3 normal2 = texture(waterBump, (vec2(1, 1) - uv) * 32 + (time) * 0.01 * vec2(-1,0.2)).rgb;
 
         normal = mix(normal, normal2, 0.5);
@@ -214,8 +221,11 @@ void calcColor(vec3 N){
     
         pbr.roughness = 0.005;
         pbr.metallic = 1;
-        pbr.alpha = 0.8;
         pbr.normal = normal;
+        pbr.alpha = 0.7;
+
+        if(distance(fragPos, viewPos) > 100)
+            pbr.alpha = mix(pbr.alpha, 1, distance(fragPos, viewPos) * 0.001);
         
         pbr.baseColor = vec3(0.1, 0.4, 0.9);
         return;
@@ -235,7 +245,7 @@ void calcColor(vec3 N){
 //    }
 
     float offset = (fragPos.x * 0.01 - round(fragPos.x * 0.01));
-    offset = abs(cos(offset * 15) + 0.7) * 1;
+    offset = abs(cos(offset * 15) + 0.7) * 1 + temperature * 10;
 
     
 
@@ -265,6 +275,7 @@ void calcColor(vec3 N){
         pbr = snow;
     }
     pbr.alpha = 1;
+    
 }
 
 vec3 CalcDirLight(DirLight light, vec3 F0, vec3 viewDir, vec4 lightFragmentPosition){

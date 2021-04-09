@@ -31,7 +31,7 @@ int exempleDeProgrammeComplet()
 	//initialisation du monde 3D 
 	//---------------------------------------
 	Renderer render;// ! //on créé l'afficheur 3D
-	Camera player(vec3(3, 6, -2));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
+	Camera player(vec3(-70, 55, 150));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
 	render.useCamera(&player);// ! //on dit a notre afficheur qu'il doit afficher dans cette camera
 
 	//creation du cube
@@ -67,17 +67,18 @@ int exempleDeProgrammeComplet()
 	//----------------------------------------
 	//initialisation du monde 2d
 	Renderer2d render2d(render.Window());// on cree l'afficheur 2D en lui donnant juste la fenetre dans laquel il doit afficher
+	TextRenderer Text;
 
 	Texture haloTexture(NICO_TEXTURES_PATH"halo.png");//on charge une image .png ou .jpg ou quelques autre format marche
-	Object2d halo(&haloTexture, vec2(10), vec2(10));//on cree un object 2D qui contient une image, une position, une taille, une rotation
-	render2d.addElement(&halo);//on ajoute cet objet 2d a notre afficheur 2D
-	halo.setMultiplyColor(vec3(1, 0.1, 1));// ajoute un filtre de couleur sur la texture de base de l'objet 
+	Object2d halo(&haloTexture, vec2(4), vec2(4));//on cree un object 2D qui contient une image, une position, une taille, une rotation
+	//render2d.addElement(&halo);//on ajoute cet objet 2d a notre afficheur 2D
+	halo.setMultiplyColor(vec3(0));// ajoute un filtre de couleur sur la texture de base de l'objet 
 
 	NumberInput input(render.Window());//on créé une entrée de nombre réél qui fonctionne comme un object2d
-	render2d.addElement(&input);//on ajoute cette objet 2D a notre afficheur
+	//render2d.addElement(&input);//on ajoute cette objet 2D a notre afficheur
 	input.setPosition(vec2(render.Window()->getWidth() / 4, render.Window()->getHeight() / 4));//on change la position de l'entrée nombre
 	input.setTransparency(0.5f);//on met la transparence a la moitié --> ]0, 1]
-	input.setValue(10);//mettre une valeur par default a notre entrée
+	input.setValue(1);//mettre une valeur par default a notre entrée
 	//--------------------------------------------
 
 	// quelques fonctions utiles :
@@ -86,7 +87,7 @@ int exempleDeProgrammeComplet()
 	render.Window()->setTitle("COUCOU");
 
 	//changer la puissance de la reflection de la texture d'environment sur les objets [0, 1]
-	render.setAmbientStrength(0.3f);
+	render.setAmbientStrength(1.0f);
 
 	//ca c'est l'objet du terrain il prends comme parametre un afficheur 3D, et une camera
 	Land land(&render, &player);
@@ -94,16 +95,20 @@ int exempleDeProgrammeComplet()
 	do {// ! // A PARTIR DE CETTE LIGNE, CHAQUE LIGNE S'EXECUTE A CHAQUE IMAGE DONC RACONTER VOTRE VIE SVP SI VOUS VOULEZ DES FPS
 
 		render.clear();// ! //nettoie l'ecran pour permetre d'y afficher une nouvelle image
+		Text.updateDisplay(render.Window());//necessaire pour afficher du text apres
 
-		//change dynamiquement la rotation de l'objet 3D "sphere"
+		//change dynamiquement la rotation de l'objet 3D "cube"
 		cube.setRotation(vec3(1, sin(render.Window()->getTime() * 0.2f) * 4, 1), render.Window()->getTime() * 0.01f * input.getValue());
 
 		//on change dynamiquement la position l'object 2D "halo" au millieu de l'ecran
 		halo.setPosition(vec2(render.Window()->getWidth() / 2, render.Window()->getHeight() / 2));
 
 		float speed = 5;
-		if (render.Window()->Key(GLFW_KEY_LEFT_SHIFT))
+		if (render.Window()->Key(GLFW_KEY_LEFT_SHIFT))//sprint
 			speed = 50;
+
+		if (render.Window()->Key(GLFW_KEY_CAPS_LOCK))//mega sprint
+			speed = 400;
 
 		player.classicKeyboardControls(render.Window(), speed);// ! //permet de bouger dans le monde avec z q s d espace et control - gauche
 		player.classicMouseControls(render.Window(), 0.004f);// ! //permet de bouger la direction de la camera avec la souris
@@ -111,25 +116,23 @@ int exempleDeProgrammeComplet()
 		render.update();// ! //met a jour l'affichage des object 3D
 		render.frame();// ! //affiche une image a l'ecran des objets 3D
 		
-		render.drawEnvironmentMapAsSkyMap();
-
+		render.drawEnvironmentMapAsSkyMap();//affiche l'image 360 en arriere plan
 		
 		land.update();//met a jour le terrain
 		land.draw();//affiche le terrain
-		land.setSeaLevel((double)input);
 
 		
-		if (player.getPosition().y > 200)
+		if (player.getPosition().y > 400)
 			player.setZNear(10);//modifie la distance mimimale que peut percevoir la camera
 		else
 			player.setZNear(0.2);
 
-		if (player.getPosition().y > 2000)
-			player.setZFar(10000);
+		if (player.getPosition().y > 1000)
+			player.setZFar(10000);//modifie la distance maximale que peut voir la camera
 		else
-			player.setZFar(4000);
+			player.setZFar(2000);
 
-		if(render.Window()->Key(GLFW_KEY_F11)){
+		if(render.Window()->Key(GLFW_KEY_F11)){//si on appuie sur F11 sa bascule en pseudo-fullscreen
 			render.Window()->setSize(1920, 1080);
 			render.Window()->setPos(0,0);
 		}
@@ -138,11 +141,15 @@ int exempleDeProgrammeComplet()
 		//2d
 		render2d.frame();// affiche tous les object 2D
 
+		//affichage de texte 
+		Text.printLeftTop("fps : " + std::to_string(render.Window()->getFps()) + " | pos : " + nico::strings::vec3Tostring(player.getPosition()));
+
 		//on teste si la touche echap est appuyé et si c'est le cas on ferme la fenetre
 		//liste des noms des touches sur : https://www.glfw.org/docs/latest/group__keys.html
 		if (render.Window()->Key(GLFW_KEY_ESCAPE)) {
 			render.Window()->setShouldClose(true);//on demande a fermer la fenetre
 		}
+
 
 	} while (!render.Window()->shouldClose());// ! //la boucle continue tant la fenetre ne demande PAS a etre fermer
 

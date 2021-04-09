@@ -52,7 +52,7 @@ int openGL() {
 	//Model backpackModel("C:/Users/nicol/OneDrive/Documents/C++ libs/nico/nico/objects/backpack/backpack.obj");
 	Model souche("C:/Users/nicol/OneDrive/Documents/Graphismes/models/souche/souche.obj");
 	Model metalPbr("C:/Users/nicol/OneDrive/Documents/Graphismes/models/metal/metal.obj");
-	Model BallonModel("C:/Users/nicol/OneDrive/Documents/Graphismes/models/starship/starship.obj");
+	//Model BallonModel("C:/Users/nicol/OneDrive/Documents/Graphismes/models/starship/starship.obj");
 	Model pbrDemo("C:/Users/nicol/OneDrive/Documents/Graphismes/models/pbrDemo/pbrDemo.obj");
 	Model rocky("C:/Users/nicol/OneDrive/Documents/Graphismes/models/rockyFloor/rockyFloor.obj");
 
@@ -62,7 +62,7 @@ int openGL() {
 	Object3d wall(&brick, vec3(-3,2,5), vec3(2), vec3(1, 0, 0), glm::radians(-90.0f));
 	Object3d ground(&rocky, vec3(0), vec3(1), vec3(1, 0, 0), glm::radians(-00.0f));
 	Object3d metal(&metalPbr, vec3(0,1,0));
-	Object3d balloon(&BallonModel, vec3(2, 8, 1));
+	//Object3d balloon(&BallonModel, vec3(2, 8, 1));
 
 	//Light light1; light1.setName("light1"); light1.importFromJson(R"({"light1": {"color": {"r": 50,"g" : 50,"b" : 40}}})");
 	Light light2;
@@ -104,7 +104,7 @@ int openGL() {
 	render.addEntity(&backpack);
 	//render.addEntity(&cube);
 	render.addEntity(&metal);
-	render.addEntity(&balloon);
+	//render.addEntity(&balloon);
 	render.addDecor(&ground);
 	render.addDecor(&tree);
 	//render.addDecor(&wall);
@@ -264,6 +264,7 @@ int openGL() {
 		
 		render.update();
 		render.frame(mainFBO);
+		render.drawEnvironmentMapAsSkyMap();
 
 		// render the geometry of the post-processings effects 
 		glBindFramebuffer(GL_FRAMEBUFFER, ppFBO);
@@ -299,16 +300,23 @@ int openGL() {
 		glActiveTexture(GL_TEXTURE4);
 		glBindTexture(GL_TEXTURE_3D, noiseTexture);
 
+
 		screenShader->set("depthMap", 1);
 		screenShader->set("ppDepthMap", 2);
 		screenShader->set("fragDirMap", 3);
 		screenShader->set("noise", 4);
+
 		screenShader->set("viewPos", player.getPosition());
 		screenShader->set("zNear", player.getZNear());
 		screenShader->set("zFar", player.getZFar());
 		screenShader->set("boxPos", cloudsContainer.getPos());
 		screenShader->set("boxScale", cloudsContainer.getScale());
 		screenShader->set("look", player.getLook());
+		screenShader->set("fov", player.getFov());
+		screenShader->set("width", render.Window()->getWidth());
+		screenShader->set("height", render.Window()->getHeight());
+		screenShader->set("view", player.getView());
+		screenShader->set("invProj", glm::inverse(player.getProjection()));
 
 
 		screen.draw(screenShader);

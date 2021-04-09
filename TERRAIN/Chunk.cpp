@@ -3,7 +3,7 @@
 #define NUMBER_OF_HEIGHTS resolution + 3 // two more vertices for normals calculations
 #define NUMBER_OF_VERTICES resolution + 1 // this is the number of vertices per chunk's edge
 
-float Chunk::offsetBetweenSeaAndLand = 0.01f;
+float Chunk::offsetBetweenSeaAndLand = 0.2f;
 float Chunk::seaLevel = 1.0f;
 
 using namespace nico;
@@ -25,8 +25,9 @@ Chunk::Chunk(ivec2 pos, uint32_t res)
 	this->DrawFunc = preCreatedDrawCall;
 	this->loadingThread = new std::thread(&Chunk::createChunkData, this);
 	this->loadingThread->detach();
+	this->containWater = true;
 
-	noise.SetSeed(8768768);
+	noise.SetSeed(-123);
 }
 
 Chunk::~Chunk(){
@@ -47,6 +48,9 @@ void Chunk::draw(nico::Shader* shader) {
 
 void Chunk::drawWater(nico::Shader* shader)
 {
+	if (!containWater)
+		return;
+
 	shader->set("water", true);
 
 	shader->set("normalMap", 3);
@@ -100,6 +104,8 @@ void Chunk::CalculateHeights()
 	const double xOffset = (double)chunkGridPos.x * (double)CHUNK_SIZE;
 	const double yOffset = (double)chunkGridPos.y * (double)CHUNK_SIZE;
 	
+	containWater = false;
+	temperature = noise.GetValue(chunkGridPos.x * 0.0001, chunkGridPos.y, 0.0001);
 
 	for (uint32_t i = 0; i < NUMBER_OF_HEIGHTS; i ++)
 	{
@@ -112,12 +118,14 @@ void Chunk::CalculateHeights()
 
 			//the array is filled in a way that we can add some heights between previous values
 
-			const float A = (std::max(0.8, noise.GetValue(X * 0.0005, 0, Y * 0.0005)) * 20 - 18);
+			const float A = std::max(0.25, noise.GetValue(X * 0.0002, 0, Y * 0.0002)) * 1.2;
 
-			heights[x][y] = (noise.GetValue(X * 0.001, 0, Y * 0.001)) * 60.0f +
+			heights[x][y] = noise.GetValue(X * 0.0003, Y * 0.0003, 0) * 100 +
 				(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0 + 
-				A * 10;
-
+				 ridged.GetValue(X * 0.0003, Y * 0.0003, 4) * 170 * A;
+			//check if the chunk contain some underwater vertices
+			if (heights[x][y] < seaLevel)
+				containWater = true;
 
 			//avoid Z-fighting
 			if (heights[x][y] > seaLevel) {
@@ -143,15 +151,15 @@ void Chunk::CalculateVertices()
 	const float yOffset = chunkGridPos.y * CHUNK_SIZE;
 
 	vertices.clear();
-	vertices.resize((size_t)length * (size_t)length + 10000);
+	vertices.resize((size_t)length * (size_t)length);
 
 	for (uint16_t x = 0; x < length; x++) {
 		for (uint16_t y = 0; y < length; y++)
 		{
 			glm::vec3 vertex = glm::vec3(x, heights[(x + 1) * offset ][(y + 1) * offset], y);
 
-			vertex.x = vertex.x * resize + xOffset;
-			vertex.z = vertex.z * resize + yOffset;
+			vertex.x = vertex.x * resize;
+			vertex.z = vertex.z * resize;
 
 						//location
 			Vertex vertice(vertex);
@@ -167,6 +175,9 @@ void Chunk::CalculateVertices()
 			glm::vec3 normal2 = calculateNormalVector(vertex, vertex2, vertex3);
 			glm::vec3 normal3 = calculateNormalVector(vertex, vertex3, vertex4);
 			glm::vec3 normal4 = calculateNormalVector(vertex, vertex4, vertex1);
+			
+			vertice.positions.x += xOffset;
+			vertice.positions.z += yOffset;
 
 			vertice.normals = normal1 + normal2 + normal3 + normal4;
 			// tangent and bitangents
@@ -247,6 +258,7 @@ void Chunk::preCreatedDrawCall(Shader* shader, Chunk* chunk)
 void Chunk::drawCall(Shader* shader, Chunk* chunk)
 {
 	shader->use();
+	shader->set("temperature", chunk->temperature);
 	glBindVertexArray(chunk->VAO);
 
 	shader->set("waterBump", 0);
@@ -257,11 +269,6 @@ void Chunk::drawCall(Shader* shader, Chunk* chunk)
 	glActiveTexture(GL_TEXTURE1);
 	Chunk::normal->bind();
 
-
-
-
-	GLenum rendering;
-
 	glDrawElements(GL_TRIANGLES, chunk->resolution * chunk->resolution * 6, GL_UNSIGNED_INT, (void*)0);
 }
 
@@ -271,7 +278,6 @@ void Chunk::generatingDrawCall(nico::Shader* shader, Chunk* chunk)
 		chunk->sendData();
 		chunk->DrawFunc = &Chunk::drawCall;
 		delete chunk->loadingThread;
-		return;
 	}
 
 	drawCall(shader, chunk);

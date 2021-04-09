@@ -27,7 +27,7 @@ namespace nico {
          * \param yaw
          * \param fov
          */
-        Camera(glm::vec3 pos = glm::vec3(0,0,0), float pitch = PI/2.0f, float yaw = 0, float fov = 45.0f);
+        Camera(glm::vec3 pos = glm::vec3(0,0,0), float pitch = PI/2.0f, float yaw = 0, float fov = PI * 0.4);
         /**
          * @brief this take the values of the camera and update the matrices with them
          * the change of the camera will not be applied until you call this method

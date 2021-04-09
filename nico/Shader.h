@@ -118,6 +118,12 @@ inline void nico::Shader::set(const char* name, float value)
 	glUniform1f(glGetUniformLocation(id, name), value);
 }
 template <>
+inline void nico::Shader::set(const char* name, double value)
+{
+	this->use();
+	glUniform1f(glGetUniformLocation(id, name), value);
+}
+template <>
 inline void nico::Shader::set(const char* name, glm::vec2 value)
 {
 	this->use();
