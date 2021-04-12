@@ -1,9 +1,9 @@
 #include <nico.hpp>// cette ligne inclut toutes les biblioteques dont on a besoin et mes classes aussi 
 #include <TERRAIN/Land.h>
+#include <SOURCE/Header.h>
 
 using namespace nico;//on est pas obligé de taper "nico::" devant tous mes classes (nico::Renderer par exemple c chiant)
 using namespace glm;//ca c'est la biblioteque de fonctions mathématiques et cette ligne evite qu'on ai a mettre "glm::" devant les vecteurs par example
-
 
 //programme de départ
 int programmeMinimun() {
@@ -31,7 +31,7 @@ int exempleDeProgrammeComplet()
 	//initialisation du monde 3D 
 	//---------------------------------------
 	Renderer render;// ! //on créé l'afficheur 3D
-	Camera player(vec3(-70, 55, 150));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
+	Camera player(vec3(-458, 3.6, 3470));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
 	render.useCamera(&player);// ! //on dit a notre afficheur qu'il doit afficher dans cette camera
 
 	//creation du cube
@@ -159,6 +159,4 @@ int exempleDeProgrammeComplet()
 	return 0;// la simulation est finie (enfin)
 }
 
-int main() {
-	return exempleDeProgrammeComplet();
-}
+
