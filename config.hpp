@@ -7,7 +7,7 @@
 
 
 //this is the path of nico directory
-#define NICO_PATH "C:/Users/nicol/OneDrive/Documents/C++ libs/nico/"//LA faut le repertoire dans lequel vous avez mis le dossier nico
+#define NICO_PATH "C:/Users/theot/OneDrive/Bureau/Cours Pre-ing 1/projet/Simulateur/"//LA faut le repertoire dans lequel vous avez mis le dossier nico
 
 //this enable some rendering debugging tools but decrease performances
 #define NICO_RENDERING_DEBUG
