@@ -12,7 +12,7 @@ out mat3 TBN;
 //this is the position of the fragment in world space
 out vec3 fragPos;
 
-//this use for shadow :
+//this use for shadows :
 out vec4 lightFragPos;
 uniform mat4 lightSpaceMatrix;
 
@@ -21,9 +21,15 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
+uniform vec4 clipPlane;
+
 void main()
 {
-    gl_Position = projection * view * model * vec4(aPos , 1.0);
+    vec4 worldTrans = model * vec4(aPos , 1.0);
+    
+    gl_Position = projection * view * worldTrans;
+    gl_ClipDistance[0] = dot(worldTrans, clipPlane);
+
     normals = aNormals;
     uv = aUv;
     fragPos = vec3(model * vec4(aPos, 1));
