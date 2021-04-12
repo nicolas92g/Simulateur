@@ -142,7 +142,7 @@ void main(){
     grass.metallic = 0;
     grass.roughness = 0.7;
     grass.normal = pbr.normal;
-    grass.baseColor = vec3(0.0, 0.4, 0.0);
+    grass.baseColor = vec3(0.0, 0.3, 0.0);
 
     calcColor(pbr.normal); 
 

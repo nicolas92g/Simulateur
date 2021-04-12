@@ -119,7 +119,7 @@ void Chunk::CalculateHeights()
 
 			const float A = std::max(0.25, noise.GetValue(X * 0.0002, 0, Y * 0.0002)) * 1.2;
 
-			const float rare = (std::max(0.8, noise.GetValue(X * 0.0002, 0, Y * 0.0002)) * 5) - 3;
+			const float rare = (std::max(0.8, noise.GetValue(X * 0.00015, 0, Y * 0.00015)) * 5) - 3;
 
 			heights[x][y] = noise.GetValue(X * 0.0003, Y * 0.0003, 0) * 100 +
 				(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0 + 
