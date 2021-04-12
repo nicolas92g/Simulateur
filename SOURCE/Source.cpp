@@ -1,9 +1,9 @@
 #include <nico.hpp>// cette ligne inclut toutes les biblioteques dont on a besoin et mes classes aussi 
 #include <TERRAIN/Land.h>
+#include <SOURCE/Header.h>
 
 using namespace nico;//on est pas obligé de taper "nico::" devant tous mes classes (nico::Renderer par exemple c chiant)
 using namespace glm;//ca c'est la biblioteque de fonctions mathématiques et cette ligne evite qu'on ai a mettre "glm::" devant les vecteurs par example
-
 
 //programme de départ
 int programmeMinimun() {
@@ -31,7 +31,7 @@ int exempleDeProgrammeComplet()
 	//initialisation du monde 3D 
 	//---------------------------------------
 	Renderer render;// ! //on créé l'afficheur 3D
-	Camera player(vec3(-70, 55, 150));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
+	Camera player(vec3(-458, 3.6, 3470));// ! // on créé la camera qui "filme" le monde avec une position initiale de (x = 3, y = 6, z = -2)
 	render.useCamera(&player);// ! //on dit a notre afficheur qu'il doit afficher dans cette camera
 
 	//creation du cube
@@ -63,11 +63,11 @@ int exempleDeProgrammeComplet()
 
 
 	// ! //ca c'est pour charger une texture d'environment de format .hdr (vous pouvez en trouver sur internet en cherchant ca : hdr environment map )
-	render.loadEnvironmentMap(NICO_TEXTURES_PATH"skyMap.hdr", 4000);// ! //kloppenheim_06_16k
+	render.loadEnvironmentMap(NICO_TEXTURES_PATH"sky.hdr", 4000);// ! //kloppenheim_06_16k
 	//----------------------------------------
 	//initialisation du monde 2d
 	Renderer2d render2d(render.Window());// on cree l'afficheur 2D en lui donnant juste la fenetre dans laquel il doit afficher
-	TextRenderer Text;
+	TextRenderer Text;//afficheur de texte
 
 	Texture haloTexture(NICO_TEXTURES_PATH"halo.png");//on charge une image .png ou .jpg ou quelques autre format marche
 	Object2d halo(&haloTexture, vec2(4), vec2(4));//on cree un object 2D qui contient une image, une position, une taille, une rotation
@@ -111,7 +111,7 @@ int exempleDeProgrammeComplet()
 			speed = 400;
 
 		player.classicKeyboardControls(render.Window(), speed);// ! //permet de bouger dans le monde avec z q s d espace et control - gauche
-		player.classicMouseControls(render.Window(), 0.004f);// ! //permet de bouger la direction de la camera avec la souris
+		player.classicMouseControls(render.Window(), 0.003f);// ! //permet de bouger la direction de la camera avec la souris
 
 		render.update();// ! //met a jour l'affichage des object 3D
 		render.frame();// ! //affiche une image a l'ecran des objets 3D
@@ -122,19 +122,20 @@ int exempleDeProgrammeComplet()
 		land.draw();//affiche le terrain
 
 		
-		if (player.getPosition().y > 400)
-			player.setZNear(10);//modifie la distance mimimale que peut percevoir la camera
+		if (player.getPosition().y > 800)
+			player.setZNear(0.2);//modifie la distance mimimale que peut percevoir la camera
 		else
 			player.setZNear(0.2);
 
 		if (player.getPosition().y > 1000)
 			player.setZFar(10000);//modifie la distance maximale que peut voir la camera
 		else
-			player.setZFar(2000);
+			player.setZFar(4000);
 
 		if(render.Window()->Key(GLFW_KEY_F11)){//si on appuie sur F11 sa bascule en pseudo-fullscreen
+			
 			render.Window()->setSize(1920, 1080);
-			render.Window()->setPos(0,0);
+			render.Window()->setPos(0, 0);
 		}
 
 
@@ -158,6 +159,4 @@ int exempleDeProgrammeComplet()
 	return 0;// la simulation est finie (enfin)
 }
 
-int main() {
-	return exempleDeProgrammeComplet();
-}
+

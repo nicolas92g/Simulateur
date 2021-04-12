@@ -3,7 +3,7 @@
 #define NUMBER_OF_HEIGHTS resolution + 3 // two more vertices for normals calculations
 #define NUMBER_OF_VERTICES resolution + 1 // this is the number of vertices per chunk's edge
 
-float Chunk::offsetBetweenSeaAndLand = 0.2f;
+float Chunk::offsetBetweenSeaAndLand = 0.5f;
 float Chunk::seaLevel = 1.0f;
 
 using namespace nico;
@@ -105,7 +105,6 @@ void Chunk::CalculateHeights()
 	const double yOffset = (double)chunkGridPos.y * (double)CHUNK_SIZE;
 	
 	containWater = false;
-	temperature = noise.GetValue(chunkGridPos.x * 0.0001, chunkGridPos.y, 0.0001);
 
 	for (uint32_t i = 0; i < NUMBER_OF_HEIGHTS; i ++)
 	{
@@ -120,12 +119,16 @@ void Chunk::CalculateHeights()
 
 			const float A = std::max(0.25, noise.GetValue(X * 0.0002, 0, Y * 0.0002)) * 1.2;
 
+			const float rare = (std::max(0.8, noise.GetValue(X * 0.00015, 0, Y * 0.00015)) * 5) - 3;
+
 			heights[x][y] = noise.GetValue(X * 0.0003, Y * 0.0003, 0) * 100 +
 				(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0 + 
-				 ridged.GetValue(X * 0.0003, Y * 0.0003, 4) * 170 * A;
+				 ridged.GetValue(X * 0.0003, Y * 0.0003, 4) * 170 * A * rare;
 			//check if the chunk contain some underwater vertices
 			if (heights[x][y] < seaLevel)
 				containWater = true;
+
+			heights[x][y] *= 1.5;
 
 			//avoid Z-fighting
 			if (heights[x][y] > seaLevel) {
@@ -181,7 +184,7 @@ void Chunk::CalculateVertices()
 
 			vertice.normals = normal1 + normal2 + normal3 + normal4;
 			// tangent and bitangents
-			calculateTangentsAndBi(&vertice);
+			calculateTangents(&vertice);
 
 			vertices[(((size_t)x * length) + (size_t)y)] = vertice;
 		}
@@ -217,29 +220,34 @@ void Chunk::calculateTangentsAndBi(nico::Vertex* point)
 	point->bitangents = glm::cross(point->tangents, point->normals);
 }
 
+void Chunk::calculateTangents(nico::Vertex* point)
+{
+	glm::vec3 c1 = glm::cross(point->normals, glm::vec3(0.0, 0.0, 1.0));
+	glm::vec3 c2 = glm::cross(point->normals, glm::vec3(0.0, 1.0, 0.0));
+
+	if (glm::length(c1) > glm::length(c2))
+	{
+		point->tangents = c1;
+	}
+	else
+	{
+		point->tangents = c2;
+	}
+
+	point->tangents = glm::normalize(point->tangents);
+}
+
 void Chunk::createChunkData(Chunk* chunk)
 {
-
 	Chunk::numberOfThreads++;
-	//auto start = std::chrono::high_resolution_clock::now();
+
 	chunk->CalculateHeights();
-
-	//auto stop = std::chrono::high_resolution_clock::now();
-	//auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-	//std::cout << "\nCalculateHeights() a pris :" << (float)duration.count() / 1000.0f << "  ms\n";
-
-	//start = std::chrono::high_resolution_clock::now();
 	chunk->CalculateVertices();
-
-	//stop = std::chrono::high_resolution_clock::now();
-	//duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-	//std::cout << "CalculateVertices() a pris :" << (float)duration.count() / 1000.0f << "  ms\n\n";
-
 	chunk->CalculateIndices();
-
 
 	chunk->isCreated = true;
 	chunk->isReloading = false;
+
 	Chunk::numberOfThreads--;
 }
 
@@ -258,7 +266,6 @@ void Chunk::preCreatedDrawCall(Shader* shader, Chunk* chunk)
 void Chunk::drawCall(Shader* shader, Chunk* chunk)
 {
 	shader->use();
-	shader->set("temperature", chunk->temperature);
 	glBindVertexArray(chunk->VAO);
 
 	shader->set("waterBump", 0);

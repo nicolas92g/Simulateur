@@ -24,12 +24,16 @@ Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 	this->middleResolution = 6;
 	this->farResolution = 4;
 
+	initRefractionSystem();
 }
 
 Land::~Land()
 {
 	delete shader;
 	Chunk::destroyWaterObject();
+	glDeleteFramebuffers(1, &refractionFBO);
+	glDeleteTextures(1, &refractionColorMap);
+	glDeleteTextures(1, &refractionDepthMap);
 }
 
 void Land::update()
@@ -159,39 +163,11 @@ bool Land::isLoaded(glm::ivec2 chunk)
 
 void Land::draw(Shader* shader)
 {
+	updateRefraction();
+
+	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 	cam->sendToShader(shader);
-	render->prepareShaderBeforeDraw(shader);
-	render->sendLightsToShader(shader);
-	shader->set<float>("time", glfwGetTime());
-	shader->set("seaLevel", Chunk::seaLevel);
-
-	glDepthFunc(GL_LESS);
-
-	shader->set("model", glm::translate(vec3(0)));
-
-	for (auto y = land.begin(); y != land.end(); y++)
-	{
-		for (auto x = y->second.begin(); x != y->second.end(); x++)
-		{
-			x->second->draw(shader);
-		}
-	}
-
-	bool cullFace = glIsEnabled(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
-	
-
-	for (auto y = land.begin(); y != land.end(); y++)
-	{
-		
-		for (auto x = y->second.begin(); x != y->second.end(); x++)
-		{
-			x->second->drawWater(shader);
-		}
-	}
-
-	if (cullFace)
-		glEnable(GL_CULL_FACE);
+	drawCall(shader);
 }
 
 void Land::draw()
@@ -212,6 +188,97 @@ void Land::setSeaLevel(float seaLevel)
 float Land::getSeaLevel() const
 {
 	return Chunk::seaLevel;
+}
+
+void Land::initRefractionSystem()
+{
+	//initialize refraction textures resolution
+	refractionRes = glm::ivec2(1920, 1080);
+
+	//unbind all textures
+	glBindTexture(GL_TEXTURE_2D, NULL);
+
+	//create the FBO
+	glGenFramebuffers(1, &refractionFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, refractionFBO);
+
+	// generate color texture
+	glGenTextures(1, &refractionColorMap);
+	glBindTexture(GL_TEXTURE_2D, refractionColorMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, refractionRes.x, refractionRes.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, refractionColorMap, 0);
+
+	// generate depth texture
+	glGenTextures(1, &refractionDepthMap);
+	glBindTexture(GL_TEXTURE_2D, refractionDepthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, refractionRes.x, refractionRes.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, refractionDepthMap, 0);
+
+	//check framebuffer 
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "error : refraction framebuffer is not complete" << std::endl;
+
+	//unbind FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void Land::updateRefraction()
+{
+	glEnable(GL_CLIP_DISTANCE0);
+	shader->set("clipPlane", vec4(0, 1, 0, -Chunk::seaLevel));
+
+
+	
+	
+	shader->set("clipPlane", vec4(0, 1, 0, 100000));
+	glDisable(GL_CLIP_DISTANCE0);
+
+}
+
+void Land::drawCall(Shader* shader)
+{
+	render->prepareShaderBeforeDraw(shader);
+	render->sendLightsToShader(shader);
+	shader->set("time", glfwGetTime());
+	shader->set("seaLevel", Chunk::seaLevel);
+
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_2D, refractionColorMap);
+	shader->set("refractionColor", 10);
+
+	static const glm::mat4 model = glm::translate(vec3(0));
+	shader->set("model", model);
+
+	glDepthFunc(GL_LESS);
+
+	for (auto y = land.begin(); y != land.end(); y++)
+	{
+		for (auto x = y->second.begin(); x != y->second.end(); x++)
+		{
+			x->second->draw(shader);
+		}
+	}
+
+	bool cullFace = glIsEnabled(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+
+	for (auto y = land.begin(); y != land.end(); y++)
+	{
+
+		for (auto x = y->second.begin(); x != y->second.end(); x++)
+		{
+			x->second->drawWater(shader);
+		}
+	}
+
+	if (cullFace)
+		glEnable(GL_CULL_FACE);
 }
 
 glm::ivec2 Land::convertPlayerPosToChunkPos(glm::vec3 pos)
