@@ -42,6 +42,7 @@ protected:
 	void sendData();// t<10 ms 
 
 	static glm::vec3 calculateNormalVector(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
+	static void calculateTangents(nico::Vertex* point);
 	static void calculateTangentsAndBi(nico::Vertex* point);
 
 	
@@ -56,7 +57,6 @@ protected:
 	uint8_t ResPowerTwo;// 2**(this var) == resolution
 	uint32_t maxPowerTwo;//stock the biggest resolution the chunk was(in the 2**this way)
 	bool containWater;
-	double temperature;
 
 	static nico::Texture* normal;//land normal map
 	static nico::Texture* waterBump;//water normal map

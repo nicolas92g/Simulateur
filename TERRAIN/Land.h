@@ -41,6 +41,18 @@ protected:
 
 	std::unordered_map<int, std::unordered_map<int, std::shared_ptr<Chunk>>> land;
 
+	//water
+	glm::ivec2 refractionRes;
+	uint32_t refractionFBO;
+	uint32_t refractionDepthMap;
+	uint32_t refractionColorMap;
+	void initRefractionSystem();
+	void updateRefraction();
+
+	
+	//utils functions
+
+	void drawCall(nico::Shader* shader);
 	glm::ivec2 convertPlayerPosToChunkPos(glm::vec3 pos);
 	uint16_t getChunkDistance(glm::ivec2 centralChunk, glm::ivec2 chunk);
 	glm::ivec2 getChunkDirectionToLoad(glm::vec3 look);
