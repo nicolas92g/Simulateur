@@ -1,0 +1,25 @@
+var nico_functions_8h =
+[
+    [ "MATH", "nico_functions_8h.html#a17384ea3d5f1e13e459fcb314e58f451", null ],
+    [ "STRINGS", "nico_functions_8h.html#ac23e49120fc250e0b3a1c298850ccf37", null ],
+    [ "between0and1", "nico_functions_8h.html#aa0cac6041bb0f7f0478ae238f9bbf4b7", null ],
+    [ "between0and1", "nico_functions_8h.html#a83ba71f057827ac0b47ab54ce8dd5538", null ],
+    [ "entireStringToLower", "nico_functions_8h.html#a4ec6fb5ba925707a7d1f47e966f67bb2", null ],
+    [ "entireStringToUpper", "nico_functions_8h.html#acfb61be865119be5a8cd656901a593b4", null ],
+    [ "filepathToString", "nico_functions_8h.html#a944a73a22fa88c83abdcad43e6b2f2ef", null ],
+    [ "filepathToString", "nico_functions_8h.html#aadc64773b263c376c264a7ea6ed095df", null ],
+    [ "greater", "nico_functions_8h.html#abdbe244a59851dcfe842f5b3d4cdcc93", null ],
+    [ "intToString_lengthOf", "nico_functions_8h.html#ad6401ab482f2b2e6099807689b8dbbb5", null ],
+    [ "isOneOf", "nico_functions_8h.html#ad9f2a9a74159728ff45048d19a679ce3", null ],
+    [ "meanOf", "nico_functions_8h.html#ae05575419be9de4beb96024ecfcdb17d", null ],
+    [ "meanOf", "nico_functions_8h.html#a0c82a6b4c38081a2312e0aa8bc91c7e6", null ],
+    [ "organizeAscending", "nico_functions_8h.html#a99956f64e1336ff32480b3f4d6bcb7b1", null ],
+    [ "print", "nico_functions_8h.html#af1d5d4dc8768b206375cb2695137e66f", null ],
+    [ "print", "nico_functions_8h.html#aa6721fcf0a4b8aaf58b07a5699a23f5d", null ],
+    [ "println", "nico_functions_8h.html#a40d4b0313b441b37bd6985d5081db1a3", null ],
+    [ "returnThenAssign", "nico_functions_8h.html#a70beac630d3d6e58caabd23dbf48ee7c", null ],
+    [ "smaller", "nico_functions_8h.html#a2a4370e941c59913bc933814026451cd", null ],
+    [ "vec2Tostring", "nico_functions_8h.html#a939d2036b26d6179bf4032c8cbb3ddf4", null ],
+    [ "vec3Tostring", "nico_functions_8h.html#a83b993255e1642d6a008881ca3e6bd85", null ],
+    [ "vec4Tostring", "nico_functions_8h.html#ad93039923f80f3962c0446396eab23fa", null ]
+];
