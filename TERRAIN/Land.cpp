@@ -238,8 +238,8 @@ void Land::updateRefraction()
 
 
 	
-	//shader->set("clipPlane", vec4(0, 1, 0, 100000));
-	//glDisable(GL_CLIP_DISTANCE0);
+	shader->set("clipPlane", vec4(0, 1, 0, 100000));
+	glDisable(GL_CLIP_DISTANCE0);
 
 }
 
