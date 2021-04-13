@@ -4,6 +4,7 @@
 #include <TERRAIN/Land.h>
 #include "Controls.h"
 #include "Deplacement.h"
+#include "Forces.h"
 
 using namespace nico;
 using namespace glm;
@@ -15,6 +16,22 @@ int main() {
 	Camera player;
 	render.useCamera(&player);
 	player.setZFar(4000);
+	Renderer2d render2d(render.Window());
+
+	NumberInput masse(render.Window());
+	render2d.addElement(&masse);
+	masse.setPosition(vec2(200, 200));
+	masse.setValue(50);
+
+	NumberInput volume(render.Window());
+	render2d.addElement(&volume);
+	volume.setPosition(vec2(200, 100));
+	volume.setValue(1400);
+
+	NumberInput temperature(render.Window());
+	render2d.addElement(&temperature);
+	temperature.setPosition(vec2(200, 300));
+	temperature.setValue(80);
 
 	//Creation de la Montgolfière
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
@@ -49,6 +66,10 @@ int main() {
 		//nettoie l'image
 		render.clear();
 
+		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
+
+		println(montgolPhysique.forces.archi);
+
 		//fonction qui gere la physique de deplacement 
 		deplacement(&montgolPhysique, render.Window());
 		montgol.setPos(montgolPhysique.pos);
@@ -66,6 +87,9 @@ int main() {
 		//affiche le terrain
 		terrain.update();
 		terrain.draw();
+
+		//2d
+		render2d.frame();
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 
