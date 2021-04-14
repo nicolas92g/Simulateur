@@ -163,6 +163,9 @@ bool Land::isLoaded(glm::ivec2 chunk)
 
 void Land::draw(Shader* shader)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
+	glViewport(0, 0, render->Window()->getWidth(), render->Window()->getHeight());
+
 	updateRefraction();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, NULL);

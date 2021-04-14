@@ -26,7 +26,9 @@ public:
 
 	bool wasCreated() const;
 	bool isReloadingRes() const;
-	bool isCollide(sphere*a);
+	std::vector<sphere>* getHitbox();
+	void CalculateHitbox();
+
 
 	static nico::KeySwitch* lines;
 
@@ -40,7 +42,6 @@ protected:
 	void CalculateHeights();//~ < 100 ms for r = 7
 	void CalculateVertices();//~ > 100 ms for r = 7
 	void CalculateIndices();//2~3 ms for r = 7
-	void CalculateHitbox();
 
 	void sendData();// t<10 ms 
 

@@ -1,8 +1,9 @@
+#pragma once
 #include <nico.hpp>
 #include <config.hpp>
 
 //correspond à des forces sous forme d'accélération
-struct Forces {  
+struct Forces {
 	glm::vec3 archi;
 	glm::vec3 g;
 	glm::vec3 vent;
@@ -28,13 +29,18 @@ struct Physique {
 	}
 };
 
-void deplacement(Physique*, nico::Window*);
-
-float distance(glm::vec3* a,glm::vec3* b);
-
+//sphere pour former une boite de collision
 struct sphere {
 	glm::vec3 centre;
 	float rayon;
 };
 
+//toutes les fonctions qui implemente le deplacement du joueur
+
+void deplacement(Physique*, nico::Window*);
+float distance(glm::vec3* a, glm::vec3* b);
 bool collision(sphere* a, sphere* b);
+
+//outils de devellopement
+void afficheHitbox(sphere* hitbox, nico::Shader* shader);
+void afficheHitbox(std::vector<sphere>* hitbox, nico::Shader* shader);

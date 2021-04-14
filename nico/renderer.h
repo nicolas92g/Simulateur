@@ -51,7 +51,7 @@ namespace nico {
 		 * to call at the start of each frame 
 		 * at the beginning of the main loop
 		 */
-		void clear();
+		void clear(uint32_t framebuffer = NULL);
 		/**
 		 * add an movable element to the the rendering and check in the array
 		 * if it is not already in

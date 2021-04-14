@@ -63,6 +63,10 @@ int main() {
 	//titre de la fenetre
 	render.Window()->setTitle(" Simulateur de montgolfiere ( v-46.3.2 )");
 
+	sphere mongolHitbox;
+	mongolHitbox.rayon = 5;
+
+
 	do {
 		//nettoie l'image
 		render.clear();
@@ -74,13 +78,12 @@ int main() {
 		//fonction qui gere la physique de deplacement 
 		deplacement(&montgolPhysique, render.Window());
 		montgol.setPos(montgolPhysique.pos);
+		mongolHitbox.centre = montgolPhysique.pos;
+
+		
 
 		//met a jour la camera avec la souris
 		souris.update();
-
-		//affiche tous les Object3d
-		render.update();
-		render.frame();
 
 		//affiche l'image d'arriere plan
 		render.drawEnvironmentMapAsSkyMap();
@@ -88,6 +91,12 @@ int main() {
 		//affiche le terrain
 		terrain.update();
 		terrain.draw();
+
+		//affiche tous les Object3d
+		render.update();
+		render.frame();
+
+		afficheHitbox(&mongolHitbox, render.Shader());
 
 		//2d
 		render2d.frame();
