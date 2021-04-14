@@ -4,17 +4,35 @@
 #include <TERRAIN/Land.h>
 #include "Controls.h"
 #include "Deplacement.h"
+#include "Forces.h"
 
 using namespace nico;
 using namespace glm;
 
 
 int main() {
+
 	//initialisation
 	Renderer render;
 	Camera player;
 	render.useCamera(&player);
 	player.setZFar(4000);
+	Renderer2d render2d(render.Window());
+
+	NumberInput masse(render.Window());
+	render2d.addElement(&masse);
+	masse.setPosition(vec2(200, 200));
+	masse.setValue(50);
+
+	NumberInput volume(render.Window());
+	render2d.addElement(&volume);
+	volume.setPosition(vec2(200, 100));
+	volume.setValue(1400);
+
+	NumberInput temperature(render.Window());
+	render2d.addElement(&temperature);
+	temperature.setPosition(vec2(200, 300));
+	temperature.setValue(23.66f);
 
 	//Creation de la Montgolfière
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
@@ -23,8 +41,8 @@ int main() {
 
 	//creation de la physique qui gerera la position de la montgolfiere
 	Physique montgolPhysique;
-	montgolPhysique.vit = vec3(0, 200, -30);
-	montgolPhysique.pos = vec3(-458, 30, 3470);
+	montgolPhysique.vit = vec3(0);
+	montgolPhysique.pos = vec3(-458, 100, 3470);
 	
 	//creation du control de la camera avec la souris
 	Controls souris(&player, &montgol, render.Window(),vec3(0, 2, 0));
@@ -49,6 +67,10 @@ int main() {
 		//nettoie l'image
 		render.clear();
 
+		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
+
+		println(montgolPhysique.forces.archi);
+
 		//fonction qui gere la physique de deplacement 
 		deplacement(&montgolPhysique, render.Window());
 		montgol.setPos(montgolPhysique.pos);
@@ -66,6 +88,9 @@ int main() {
 		//affiche le terrain
 		terrain.update();
 		terrain.draw();
+
+		//2d
+		render2d.frame();
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 

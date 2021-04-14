@@ -52,7 +52,9 @@ protected:
 	
 	//utils functions
 
-	void drawCall(nico::Shader* shader);
+	void preDrawCall(nico::Shader* shader);
+	void drawLand(nico::Shader* shader);
+	void drawWater(nico::Shader* shader);
 	glm::ivec2 convertPlayerPosToChunkPos(glm::vec3 pos);
 	uint16_t getChunkDistance(glm::ivec2 centralChunk, glm::ivec2 chunk);
 	glm::ivec2 getChunkDirectionToLoad(glm::vec3 look);
