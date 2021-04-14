@@ -36,3 +36,5 @@ struct sphere {
 	glm::vec3 centre;
 	float rayon;
 };
+
+bool collision(sphere* a, sphere* b);

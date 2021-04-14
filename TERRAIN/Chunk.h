@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <noise.h>
 #include <chrono>
+#include <SOURCE/deplacement.h>
 
 #define CHUNK_SIZE 256
 #define MAX_RESOLUTION 10 //(8^2 = 256)
@@ -25,6 +26,7 @@ public:
 
 	bool wasCreated() const;
 	bool isReloadingRes() const;
+	bool isCollide(sphere*a);
 
 	static nico::KeySwitch* lines;
 
@@ -38,6 +40,7 @@ protected:
 	void CalculateHeights();//~ < 100 ms for r = 7
 	void CalculateVertices();//~ > 100 ms for r = 7
 	void CalculateIndices();//2~3 ms for r = 7
+	void CalculateHitbox();
 
 	void sendData();// t<10 ms 
 
@@ -76,6 +79,7 @@ protected:
 	//data of the chunk
 	std::vector<nico::Vertex> vertices;
 	std::vector<uint32_t> indices;
+	std::vector<sphere> hitbox;
 
 	//opengl stuff
 	uint32_t VAO;

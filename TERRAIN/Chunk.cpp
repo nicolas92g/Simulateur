@@ -96,6 +96,17 @@ bool Chunk::isReloadingRes() const
 	return isReloading;
 }
 
+bool Chunk::isCollide(sphere* a)
+{
+	for (size_t i = 0; i < hitbox.size(); i++)
+	{
+		if (collision(a, &hitbox[i]))
+			return true;
+	}
+
+	return false;
+}
+
 void Chunk::CalculateHeights()
 {
 	//fill vertical Pos with one more pos in each direction to determine normals
@@ -363,6 +374,17 @@ void Chunk::CalculateIndices()
 		}
 	}
 }
+
+void Chunk::CalculateHitbox() {
+
+	hitbox.resize(vertices.size());
+
+	for (uint32_t i = 0; i < vertices.size();i++) {
+		hitbox[i] = { vec3(vertices[i].positions), 0.1 };
+	}
+
+}
+
 
 void Chunk::sendData()
 {
