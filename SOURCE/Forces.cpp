@@ -12,10 +12,6 @@ glm::vec3 pousseeDArchimede(double masseAVide, double volume, double temperature
 	if (masse == 0)
 		masse = 0.001;
 
-	printf("%d\n", masse);
-
-	std::cout << "ROH" << temperature << "=" << masseVolumiqueAir(temperature) << std::endl;
-
 	return vec3(0,force/masse,0);
 }
 
