@@ -265,6 +265,9 @@ void Chunk::preCreatedDrawCall(Shader* shader, Chunk* chunk)
 
 void Chunk::drawCall(Shader* shader, Chunk* chunk)
 {
+	if (!chunk->isCreated)
+		return;
+
 	shader->use();
 	glBindVertexArray(chunk->VAO);
 

@@ -11,6 +11,7 @@ using namespace glm;
 
 
 int main() {
+
 	//initialisation
 	Renderer render;
 	Camera player;
@@ -31,7 +32,7 @@ int main() {
 	NumberInput temperature(render.Window());
 	render2d.addElement(&temperature);
 	temperature.setPosition(vec2(200, 300));
-	temperature.setValue(80);
+	temperature.setValue(23.66f);
 
 	//Creation de la Montgolfière
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
@@ -40,8 +41,8 @@ int main() {
 
 	//creation de la physique qui gerera la position de la montgolfiere
 	Physique montgolPhysique;
-	montgolPhysique.vit = vec3(0, 200, -30);
-	montgolPhysique.pos = vec3(-458, 30, 3470);
+	montgolPhysique.vit = vec3(0);
+	montgolPhysique.pos = vec3(-458, 100, 3470);
 	
 	//creation du control de la camera avec la souris
 	Controls souris(&player, &montgol, render.Window(),vec3(0, 2, 0));

@@ -167,7 +167,10 @@ void Land::draw(Shader* shader)
 
 	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 	cam->sendToShader(shader);
-	drawCall(shader);
+	
+	preDrawCall(shader);
+	drawLand(shader);
+	drawWater(shader);
 }
 
 void Land::draw()
@@ -231,17 +234,16 @@ void Land::initRefractionSystem()
 void Land::updateRefraction()
 {
 	glEnable(GL_CLIP_DISTANCE0);
-	shader->set("clipPlane", vec4(0, 1, 0, -Chunk::seaLevel));
+	shader->set("clipPlane", vec4(0, -1, 0.1, Chunk::seaLevel));
 
 
-	
 	
 	shader->set("clipPlane", vec4(0, 1, 0, 100000));
 	glDisable(GL_CLIP_DISTANCE0);
 
 }
 
-void Land::drawCall(Shader* shader)
+void Land::preDrawCall(Shader* shader)
 {
 	render->prepareShaderBeforeDraw(shader);
 	render->sendLightsToShader(shader);
@@ -256,7 +258,10 @@ void Land::drawCall(Shader* shader)
 	shader->set("model", model);
 
 	glDepthFunc(GL_LESS);
+}
 
+void Land::drawLand(Shader* shader)
+{
 	for (auto y = land.begin(); y != land.end(); y++)
 	{
 		for (auto x = y->second.begin(); x != y->second.end(); x++)
@@ -264,7 +269,10 @@ void Land::drawCall(Shader* shader)
 			x->second->draw(shader);
 		}
 	}
+}
 
+void Land::drawWater(Shader* shader)
+{
 	bool cullFace = glIsEnabled(GL_CULL_FACE);
 	glDisable(GL_CULL_FACE);
 

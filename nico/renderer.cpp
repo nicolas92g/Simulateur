@@ -651,6 +651,8 @@ void nico::Renderer::drawObjects()
 	int nbr = 0;
 #	endif
 
+	glDepthFunc(GL_LEQUAL);
+
 	prepareShaderBeforeDraw(this->shader);
 
 	//iterate through decor
