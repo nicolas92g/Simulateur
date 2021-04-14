@@ -29,3 +29,10 @@ struct Physique {
 };
 
 void deplacement(Physique*, nico::Window*);
+
+float distance(glm::vec3* a,glm::vec3* b);
+
+struct sphere {
+	glm::vec3 centre;
+	float rayon;
+};

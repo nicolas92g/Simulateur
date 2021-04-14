@@ -15,3 +15,15 @@ void deplacement(Physique* montgol, Window* win) {
 	}
 	
 }
+
+float distance(vec3* a, vec3* b) {
+	static float x, y, z;
+	 x = a->x - b->x;
+	 y = a->y - b->y;
+	 z = a->z - b->z;
+	return sqrt(x * x + y * y + z * z);
+}
+
+bool collision(sphere* a, sphere* b) {
+	return distance(&a->centre, &b->centre) <= a->rayon + b->rayon;
+}
