@@ -11,7 +11,6 @@ using namespace glm;
 
 
 int main() {
-	
 	//initialisation
 	Renderer render;
 	TextRenderer text;
@@ -35,7 +34,7 @@ int main() {
 	temperature.setPosition(vec2(200, 300));
 	temperature.setValue(23.66f);
 
-	//Creation de la Montgolfière
+	//Creation de la MontgolfiÃ¨re
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
 	Object3d montgol(&montgolGeo);
 	render.addEntity(&montgol);
@@ -112,7 +111,7 @@ int main() {
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 
-	while (Chunk::getNumberOfWorkingThreads());//attends que tous les programmes parallele soit terminé
+	while (Chunk::getNumberOfWorkingThreads());//attends que tous les programmes parallele soit terminÃ©
 
 	return 0;
 }

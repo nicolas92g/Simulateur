@@ -24,8 +24,6 @@ public:
 	std::vector<Chunk*> getNearestChunks(unsigned int number, glm::vec3 pos);
 
 protected:
-	
-
 	nico::Shader* shader;
 	nico::Key reload;
 
@@ -49,7 +47,7 @@ protected:
 	uint32_t refractionDepthMap;
 	uint32_t refractionColorMap;
 	void initRefractionSystem();
-	void updateRefraction();
+	void updateRefraction(nico::Shader* shader);
 
 	
 	//utils functions

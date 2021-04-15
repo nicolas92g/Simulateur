@@ -30,7 +30,18 @@ const double nico::NumberInput::getStep() const
 
 void nico::NumberInput::setValue(double value)
 {
-	this->text = std::to_string(value);
+	text = std::to_string(value);
+
+	uint32_t i = text.size() - 1;
+	while (i > 0) {
+		if (text[i - 1] == '.')
+			return;
+
+		if (text[i] == '0')
+			text.erase(i);
+
+		i--;
+	}
 }
 
 void nico::NumberInput::setStep(double step)

@@ -163,10 +163,10 @@ bool Land::isLoaded(glm::ivec2 chunk)
 
 void Land::draw(Shader* shader)
 {
+	updateRefraction(shader);
+=======
 	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 	glViewport(0, 0, render->Window()->getWidth(), render->Window()->getHeight());
-
-	updateRefraction();
 
 	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 	cam->sendToShader(shader);
@@ -267,16 +267,25 @@ void Land::initRefractionSystem()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Land::updateRefraction()
+void Land::updateRefraction(Shader* shader)
 {
+	//remove all the land that is above the water of the rendering 
 	glEnable(GL_CLIP_DISTANCE0);
-	shader->set("clipPlane", vec4(0, -1, 0.1, Chunk::seaLevel));
+	shader->set("clipPlane", vec4(0, -1, 0, Chunk::seaLevel));
+
+	//bind refraction FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, refractionFBO);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, refractionRes.x, refractionRes.y);
+
+	//draw only the land
+	preDrawCall(shader);
+	drawLand(shader);
 
 
-	
+	//reset the rendering as normal 
 	shader->set("clipPlane", vec4(0, 1, 0, 100000));
 	glDisable(GL_CLIP_DISTANCE0);
-
 }
 
 void Land::preDrawCall(Shader* shader)
@@ -289,6 +298,10 @@ void Land::preDrawCall(Shader* shader)
 	glActiveTexture(GL_TEXTURE10);
 	glBindTexture(GL_TEXTURE_2D, refractionColorMap);
 	shader->set("refractionColor", 10);
+
+	glActiveTexture(GL_TEXTURE11);
+	glBindTexture(GL_TEXTURE_2D, refractionDepthMap);
+	shader->set("refractionDepth", 11);
 
 	static const glm::mat4 model = glm::translate(vec3(0));
 	shader->set("model", model);

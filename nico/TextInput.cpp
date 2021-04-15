@@ -218,7 +218,7 @@ float nico::TextInput::calculateAdvance(int beginI, int lastI)
 
 	for (int i = beginI; (i <= lastI) and (i < int(text.size())); i++)
 	{
-		advance += textObject->Text.getAdvance(text[i], scale.y);
+		advance += textObject->Text.getAdvance(text[i], scale.y * .8f);
 	}
 	return advance;
 }
