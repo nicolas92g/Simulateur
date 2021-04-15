@@ -99,7 +99,11 @@ namespace nico {
 		/**
 		 * \return rotation angle of the object
 		 */
-		float getRotationAngle();
+		float getRotationAngle() const;
+		/**
+		 * @brief return the world transformation of the Object3d
+		 */
+		glm::mat4 getWorldTransformation() const;
 
 	protected:
 		//model matrix to send to shader in each draw call

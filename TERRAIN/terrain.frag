@@ -95,6 +95,7 @@ uniform sampler2D ao;//ambient occlusion map
 uniform sampler2D normalMap;// tangent normal map
 uniform sampler2D waterBump;//water normal map
 uniform sampler2D refractionColor;//refraction color map
+uniform sampler2D refractionDepth;//refraction depth map
 
 uniform samplerCube irradianceMap;// irrandiance map to determine diffuse light of a fragment
 uniform samplerCube prefilterMap;//environment map pre-filtered with 5 mip-map of different roughness
