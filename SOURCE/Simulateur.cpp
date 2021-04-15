@@ -11,7 +11,7 @@ using namespace glm;
 
 
 int main() {
-	return exempleDeProgrammeComplet();
+	return test2D();
 
 	//initialisation
 	Renderer render;

@@ -362,16 +362,16 @@ int test2D() {
 
 	render.addElement(&editor);
 
-	TextInput editorWidth(&win, vec2(120, 50), vec2(100, 30));
+	NumberInput editorWidth(&win, vec2(120, 50), vec2(100, 30));
 	editorWidth.setMultiplyColor(vec3(0, 1, 0));
 	editorWidth.setLayer(10);
 	render.addElement(&editorWidth);
 
 	Texture tex(NICO_TEXTURES_PATH"white.png");
-	Object2d image(&tex, glm::vec2(100, 100), glm::vec2(100));
+	Object2d image(&tex, glm::vec2(350.0f, 100), glm::vec2(100));
 	image.setMultiplyColor(glm::vec3(0,0,1));
 	image.setLayer(100);
-	//render.addElement(&image);
+	render.addElement(&image);
 
 	render.updateLayers();
 
@@ -390,6 +390,8 @@ int test2D() {
 
 		//editorWidth.setLayer((double) editorWidth);
 		render.updateLayers();
+
+		
 
 		//editor.setRelativeWidth((double) editorWidth);
 

@@ -163,7 +163,7 @@ bool Land::isLoaded(glm::ivec2 chunk)
 
 void Land::draw(Shader* shader)
 {
-	updateRefraction();
+	updateRefraction(shader);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 	cam->sendToShader(shader);
