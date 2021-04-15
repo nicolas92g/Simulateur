@@ -41,6 +41,15 @@ glm::ivec2 Chunk::getPosition() const
 	return this->chunkGridPos;
 }
 
+glm::vec3 Chunk::getCenter()
+{
+	glm::vec3 ret;
+	ret.x = chunkGridPos.x * CHUNK_SIZE + CHUNK_SIZE * .5f;
+	ret.z = chunkGridPos.y * CHUNK_SIZE + CHUNK_SIZE * .5f;
+	ret.y = 0;
+	return ret;
+}
+
 void Chunk::draw(nico::Shader* shader) {
 	
 	DrawFunc(shader, this);
@@ -94,6 +103,11 @@ bool Chunk::wasCreated() const
 bool Chunk::isReloadingRes() const
 {
 	return isReloading;
+}
+
+std::vector<sphere>* Chunk::getHitbox()
+{
+	return &hitbox;
 }
 
 void Chunk::CalculateHeights()
@@ -244,6 +258,7 @@ void Chunk::createChunkData(Chunk* chunk)
 	chunk->CalculateHeights();
 	chunk->CalculateVertices();
 	chunk->CalculateIndices();
+	chunk->CalculateHitbox();
 
 	chunk->isCreated = true;
 	chunk->isReloading = false;
@@ -265,6 +280,9 @@ void Chunk::preCreatedDrawCall(Shader* shader, Chunk* chunk)
 
 void Chunk::drawCall(Shader* shader, Chunk* chunk)
 {
+	if (!chunk->isCreated)
+		return;
+
 	shader->use();
 	glBindVertexArray(chunk->VAO);
 
@@ -358,6 +376,17 @@ void Chunk::CalculateIndices()
 			indices[ i + 4 ] = ((x + 1) + (y * (resolution + 1)));
 			indices[ i + 5 ] = ((x + 1) + ((y + 1) * (resolution + 1)));
 		}
+	}
+}
+
+void Chunk::CalculateHitbox() {
+	hitbox.clear();
+	hitbox.resize(vertices.size());
+
+	const float rayon = CHUNK_SIZE / resolution;
+
+	for (uint32_t i = 0; i < vertices.size(); i++) {
+		hitbox[i] = { vertices[i].positions, rayon };
 	}
 }
 

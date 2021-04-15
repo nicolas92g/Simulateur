@@ -99,7 +99,7 @@ uniform sampler2D   shadowDepthMap;//shadow depth map for the dir light
 void main(){
     //fill material with texture
     pbr.baseColor = pow(texture(diffuse, uv).rgb, vec3(2.2));
-    pbr.alpha = 1;//texture(diffuse, uv).a;
+    pbr.alpha = texture(diffuse, uv).a;
     pbr.metallic = texture(specular, uv).r;
     pbr.roughness = texture(roughness, uv).r;
     pbr.ao = 1;//texture(ao, uv).r;

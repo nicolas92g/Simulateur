@@ -96,7 +96,6 @@ void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t vi
 
 	//framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if(!viewportX)
 		glViewport(0, 0, win.getWidth(), win.getHeight());
@@ -108,11 +107,14 @@ void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t vi
 	drawObjects();
 }
 
-void nico::Renderer::clear()
+void nico::Renderer::clear(uint32_t frameBuffer)
 {
 	win.endFrame();
 	nico::clearLights();
 	TextRenderer::textToPrint = "";
+
+	glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void nico::Renderer::addEntity(Object3d* object)
@@ -650,6 +652,8 @@ void nico::Renderer::drawObjects()
 #	ifdef NICO_RENDERING_DEBUG
 	int nbr = 0;
 #	endif
+
+	glDepthFunc(GL_LEQUAL);
 
 	prepareShaderBeforeDraw(this->shader);
 

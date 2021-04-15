@@ -93,7 +93,12 @@ vec3 nico::Object3d::getRotationAxe() const
 	return rotationAxe;
 }
 
-float nico::Object3d::getRotationAngle()
+glm::mat4 nico::Object3d::getWorldTransformation() const
+{
+	return model;
+}
+
+float nico::Object3d::getRotationAngle() const
 {
 	return rotationAngle;
 }

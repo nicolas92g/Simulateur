@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <noise.h>
 #include <chrono>
+#include <SOURCE/deplacement.h>
 
 #define CHUNK_SIZE 256
 #define MAX_RESOLUTION 10 //(8^2 = 256)
@@ -15,6 +16,7 @@ public:
 	~Chunk();
 
 	glm::ivec2 getPosition() const;
+	glm::vec3 getCenter();
 
 	void draw(nico::Shader* shader);
 
@@ -25,6 +27,9 @@ public:
 
 	bool wasCreated() const;
 	bool isReloadingRes() const;
+	std::vector<sphere>* getHitbox();
+	void CalculateHitbox();
+
 
 	static nico::KeySwitch* lines;
 
@@ -76,6 +81,7 @@ protected:
 	//data of the chunk
 	std::vector<nico::Vertex> vertices;
 	std::vector<uint32_t> indices;
+	std::vector<sphere> hitbox;
 
 	//opengl stuff
 	uint32_t VAO;
