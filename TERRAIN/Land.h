@@ -21,6 +21,8 @@ public:
 	void setSeaLevel(float seaLevel);
 	float getSeaLevel() const;
 
+	std::vector<Chunk*> getNearestChunks(unsigned int number, glm::vec3 pos);
+
 protected:
 	
 

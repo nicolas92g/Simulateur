@@ -3,16 +3,11 @@
 using namespace nico;
 using namespace glm;
 
-void deplacement(Physique* montgol, Window* win) {
+void deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes) {
 	
 	montgol->acc = montgol->forces.vent + montgol->forces.g + montgol->forces.archi;
 	montgol->vit += montgol->acc * (float)win->getDeltaTime();
 	montgol->pos += montgol->vit * (float)win->getDeltaTime();
-
-	if (montgol->pos.y < 1) {
-		montgol->pos.y = 1;
-		montgol->vit.y = 0.01 * abs(montgol->vit.y);
-	}
 	
 }
 
@@ -45,3 +40,16 @@ void afficheHitbox(std::vector<sphere>* hitbox, Shader* shader, glm::vec3* pos, 
 }
 
 std::vector<sphere> sphere::affichage;
+
+bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b)
+{
+	for (size_t i = 0; i < a->size(); i++)
+	{
+		for (size_t i = 0; i < b->size(); i++)
+		{
+			if (collision(&(*a)[i], &(*b)[i]))
+				return true;
+		}
+	}
+	return false;
+}

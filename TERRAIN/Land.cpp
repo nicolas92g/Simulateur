@@ -174,6 +174,9 @@ void Land::draw(Shader* shader)
 	preDrawCall(shader);
 	drawLand(shader);
 	drawWater(shader);
+
+	glm::ivec2 p = convertPlayerPosToChunkPos(cam->getPosition());
+	
 }
 
 void Land::draw()
@@ -194,6 +197,36 @@ void Land::setSeaLevel(float seaLevel)
 float Land::getSeaLevel() const
 {
 	return Chunk::seaLevel;
+}
+
+std::vector<Chunk*> Land::getNearestChunks(unsigned int number, glm::vec3 pos)
+{
+	std::vector<Chunk*> chunks(number);
+	std::vector<float> distance(number, { 1000000000.0f });
+	float dst;
+	unsigned int numberOfC = 0;
+
+	for (auto y = land.begin(); y != land.end(); y++)
+	{
+		for (auto x = y->second.begin(); x != y->second.end(); x++)
+		{
+			for (size_t i = 0; i < number; i++)
+			{
+				dst = glm::distance(x->second->getCenter(), pos);
+				if (distance[i] > dst) {
+					chunks[i] = x->second.get();
+					distance[i] = dst;
+					break;
+				}
+				numberOfC++;
+			}
+		}
+	}
+
+	if (numberOfC < number)
+		chunks.resize(numberOfC);
+
+	return chunks;
 }
 
 void Land::initRefractionSystem()
@@ -284,13 +317,18 @@ void Land::drawWater(Shader* shader)
 	bool cullFace = glIsEnabled(GL_CULL_FACE);
 	glDisable(GL_CULL_FACE);
 
-	for (auto y = land.begin(); y != land.end(); y++)
+	/*for (auto y = land.begin(); y != land.end(); y++)
 	{
 
 		for (auto x = y->second.begin(); x != y->second.end(); x++)
 		{
 			x->second->drawWater(shader);
 		}
+	}*/
+	std::vector<Chunk* > N = this->getNearestChunks(4, cam->getPosition());
+	for (size_t i = 0; i < N.size(); i++)
+	{
+		N[i]->drawWater(shader);
 	}
 
 	if (cullFace)

@@ -16,6 +16,7 @@ public:
 	~Chunk();
 
 	glm::ivec2 getPosition() const;
+	glm::vec3 getCenter();
 
 	void draw(nico::Shader* shader);
 

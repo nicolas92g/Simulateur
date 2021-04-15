@@ -41,6 +41,15 @@ glm::ivec2 Chunk::getPosition() const
 	return this->chunkGridPos;
 }
 
+glm::vec3 Chunk::getCenter()
+{
+	glm::vec3 ret;
+	ret.x = chunkGridPos.x * CHUNK_SIZE + CHUNK_SIZE * .5f;
+	ret.z = chunkGridPos.y * CHUNK_SIZE + CHUNK_SIZE * .5f;
+	ret.y = 0;
+	return ret;
+}
+
 void Chunk::draw(nico::Shader* shader) {
 	
 	DrawFunc(shader, this);
@@ -374,8 +383,10 @@ void Chunk::CalculateHitbox() {
 	hitbox.clear();
 	hitbox.resize(vertices.size());
 
+	const float rayon = CHUNK_SIZE / resolution;
+
 	for (uint32_t i = 0; i < vertices.size(); i++) {
-		hitbox[i] = { vertices[i].positions, 2 };
+		hitbox[i] = { vertices[i].positions, rayon };
 	}
 }
 

@@ -39,9 +39,10 @@ struct sphere {
 
 //toutes les fonctions qui implemente le deplacement du joueur
 
-void deplacement(Physique*, nico::Window*);
+void deplacement(Physique*, nico::Window*, std::vector<sphere>* hitboxes);
 float distance(glm::vec3* a, glm::vec3* b);
 bool collision(sphere* a, sphere* b);
+bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b);
 
 //outils de devellopement
 void afficheHitbox(sphere* hitbox, nico::Shader* shader);
