@@ -33,6 +33,8 @@ struct Physique {
 struct sphere {
 	glm::vec3 centre;
 	float rayon;
+
+	static std::vector<sphere> affichage;
 };
 
 //toutes les fonctions qui implemente le deplacement du joueur
@@ -43,4 +45,4 @@ bool collision(sphere* a, sphere* b);
 
 //outils de devellopement
 void afficheHitbox(sphere* hitbox, nico::Shader* shader);
-void afficheHitbox(std::vector<sphere>* hitbox, nico::Shader* shader);
+void afficheHitbox(std::vector<sphere>* hitbox, nico::Shader* shader, glm::vec3* pos, float distance = 10.0f);

@@ -96,7 +96,9 @@ int main() {
 		render.update();
 		render.frame();
 
-		afficheHitbox(&mongolHitbox, render.Shader());
+		//glDepthFunc(GL_ALWAYS);
+		afficheHitbox(&sphere::affichage, render.Shader(), &montgolPhysique.pos, 20);
+		sphere::affichage.clear();
 
 		//2d
 		render2d.frame();

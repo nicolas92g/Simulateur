@@ -249,6 +249,7 @@ void Chunk::createChunkData(Chunk* chunk)
 	chunk->CalculateHeights();
 	chunk->CalculateVertices();
 	chunk->CalculateIndices();
+	chunk->CalculateHitbox();
 
 	chunk->isCreated = true;
 	chunk->isReloading = false;
@@ -370,10 +371,11 @@ void Chunk::CalculateIndices()
 }
 
 void Chunk::CalculateHitbox() {
+	hitbox.clear();
 	hitbox.resize(vertices.size());
 
 	for (uint32_t i = 0; i < vertices.size(); i++) {
-		hitbox[i] = { vertices[i].positions, 0.1 };
+		hitbox[i] = { vertices[i].positions, 2 };
 	}
 }
 

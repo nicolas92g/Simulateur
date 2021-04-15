@@ -272,6 +272,11 @@ void Land::drawLand(Shader* shader)
 			x->second->draw(shader);
 		}
 	}
+
+	glm::ivec2 p = convertPlayerPosToChunkPos(cam->getPosition());
+
+	//sphere::affichage.insert(sphere::affichage.end(), land[p.x][p.y]->getHitbox()->begin(), land[p.x][p.y]->getHitbox()->end());
+	sphere::affichage = *land[p.x][p.y]->getHitbox();
 }
 
 void Land::drawWater(Shader* shader)

@@ -37,8 +37,11 @@ void afficheHitbox(sphere* hitbox, Shader* shader){
 	sphere.update(); sphere.draw(shader);
 }
 
-void afficheHitbox(std::vector<sphere>* hitbox, Shader* shader) {
+void afficheHitbox(std::vector<sphere>* hitbox, Shader* shader, glm::vec3* pos, float Rdistance) {
 	for (size_t i = 0; i < hitbox->size(); i++) {
-		afficheHitbox(&hitbox->operator[](i), shader);
+		if(distance(pos, &hitbox->operator[](i).centre) < Rdistance)
+			afficheHitbox(&hitbox->operator[](i), shader);
 	}
 }
+
+std::vector<sphere> sphere::affichage;
