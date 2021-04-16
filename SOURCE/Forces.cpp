@@ -15,15 +15,19 @@ glm::vec3 pousseeDArchimede(double masseAVide, double volume, double temperature
 	return vec3(0,force/masse,0);
 }
 
-/*
-double masseVolumiqueAir(double temperature) {
-
-	double pSat = 611.213 * exp((17.5043 * temperature) / (241, 2 + temperature));
-
-	double Rh = RS / (1 - (HUMIDITE_AIR * pSat / PRESSION) * (1 - RS / RV));
-
-	return PRESSION / (Rh * (temperature + 273.15));
-}*/
+glm::vec3 forceDuVent(nico::Window* win) {
+	const float speed = .5f;
+	glm::vec3 ret = vec3(0);
+	if (win->Key(GLFW_KEY_I))
+		ret.x += speed;
+	if (win->Key(GLFW_KEY_K))
+		ret.x -= speed;
+	if (win->Key(GLFW_KEY_J))
+		ret.z += speed;
+	if (win->Key(GLFW_KEY_L))
+		ret.z -= speed;
+	return ret;
+}
 
 double masseVolumiqueAir(double temperature) {
 

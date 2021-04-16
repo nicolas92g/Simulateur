@@ -1,7 +1,6 @@
 #pragma once
 #include <nico.hpp>
 #include <config.hpp>
-#include <TERRAIN/Land.h>
 
 //correspond à des forces sous forme d'accélération
 struct Forces {

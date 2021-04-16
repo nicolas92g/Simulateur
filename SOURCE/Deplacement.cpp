@@ -13,11 +13,14 @@ void deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes) 
 
 	for (size_t i = 0; i < montgol->hitbox.size(); i++)
 	{
-		mongolHitbox[i] = { montgol->hitbox[i].centre + montgol->pos, montgol->hitbox[i].rayon };
+		mongolHitbox[i] = { montgol->hitbox[i].centre + futurPos, montgol->hitbox[i].rayon };
 	}
 
 	if (!testDeCollision(&mongolHitbox, hitboxes))
 		montgol->pos = futurPos;
+	else {
+		montgol->vit = vec3(0);
+	}
 }
 
 float distance(vec3* a, vec3* b) {
@@ -54,9 +57,9 @@ bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b)
 {
 	for (size_t i = 0; i < a->size(); i++)
 	{
-		for (size_t i = 0; i < b->size(); i++)
+		for (size_t j = 0; j < b->size(); j++)
 		{
-			if (collision(&(*a)[i], &(*b)[i]))
+			if (collision(&(*a)[i], &(*b)[j]))
 				return true;
 		}
 	}

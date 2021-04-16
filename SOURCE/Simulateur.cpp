@@ -17,6 +17,7 @@ int main() {
 	Camera player;
 	render.useCamera(&player);
 	player.setZFar(4000);
+	player.setPosition(vec3(-458, 10, 3470));
 	Renderer2d render2d(render.Window());
 
 	NumberInput masse(render.Window());
@@ -76,6 +77,10 @@ int main() {
 		text.updateDisplay(render.Window());
 
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
+		montgolPhysique.forces.vent = forceDuVent(render.Window());
+
+		if (render.Window()->Key(GLFW_KEY_U))
+			montgolPhysique.vit = vec3(NULL);
 
 		//fonction qui gere la physique de deplacement 
 		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
@@ -84,9 +89,9 @@ int main() {
 		//sphere::affichage.push_back();
 
 		//met a jour la camera avec la souris
-		//souris.update();
-		player.classicKeyboardControls(render.Window(), 100);
-		player.classicMouseControls(render.Window(), 0.004f);
+		souris.update();
+		//player.classicKeyboardControls(render.Window(), 5);
+		//player.classicMouseControls(render.Window(), 0.003f);
 
 		//affiche l'image d'arriere plan
 		render.drawEnvironmentMapAsSkyMap();
@@ -101,12 +106,11 @@ int main() {
 
 		//glDepthFunc(GL_ALWAYS);
 		afficheHitbox(&sphere::affichage, render.Shader(), &montgolPhysique.pos, 20);
-		afficheHitbox(&mongolHitbox, render.Shader());
 		sphere::affichage.clear();
 
 		//2d
 		render2d.frame();
-		text.printLeftTop(nico::strings::vec3Tostring(montgolPhysique.pos));
+		text.printLeftTop(nico::strings::vec3Tostring(montgolPhysique.pos) + "  " + std::to_string(montgolPhysique.acc.y));
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 

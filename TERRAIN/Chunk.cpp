@@ -386,7 +386,7 @@ void Chunk::CalculateHitbox() {
 	const float rayon = CHUNK_SIZE / resolution;
 
 	for (uint32_t i = 0; i < vertices.size(); i++) {
-		hitbox[i] = { vertices[i].positions, rayon };
+		hitbox[i] = { vertices[i].positions - rayon * 0.9f, rayon };
 	}
 }
 
