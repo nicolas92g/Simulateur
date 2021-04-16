@@ -1,6 +1,7 @@
 #pragma once
 #include <nico.hpp>
 #include <config.hpp>
+#include <TERRAIN/Land.h>
 
 //correspond à des forces sous forme d'accélération
 struct Forces {
@@ -15,12 +16,21 @@ struct Forces {
 	}
 };
 
+//sphere pour former une boite de collision
+struct sphere {
+	glm::vec3 centre;
+	float rayon;
+
+	static std::vector<sphere> affichage;
+};
+
 //acc en m/s², vit en m/s, pos en m
 struct Physique {
 	glm::vec3 acc;
 	glm::vec3 vit;
 	glm::vec3 pos;
 	Forces forces;
+	std::vector<sphere> hitbox;
 
 	Physique() {
 		acc = vec3(0);
@@ -29,13 +39,7 @@ struct Physique {
 	}
 };
 
-//sphere pour former une boite de collision
-struct sphere {
-	glm::vec3 centre;
-	float rayon;
 
-	static std::vector<sphere> affichage;
-};
 
 //toutes les fonctions qui implemente le deplacement du joueur
 

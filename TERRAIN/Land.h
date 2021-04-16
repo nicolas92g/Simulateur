@@ -21,7 +21,8 @@ public:
 	void setSeaLevel(float seaLevel);
 	float getSeaLevel() const;
 
-	std::vector<Chunk*> getNearestChunks(unsigned int number, glm::vec3 pos);
+	std::vector<Chunk*> getNearestChunks(glm::vec3 pos);
+	std::vector<sphere>* getHitbox(glm::vec3 pos);
 
 protected:
 	nico::Shader* shader;

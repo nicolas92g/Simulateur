@@ -39,9 +39,6 @@ int main() {
 	Object3d montgol(&montgolGeo);
 	render.addEntity(&montgol);
 
-	//Creation de la sphere
-	Model sphereGeo("C:/Users/nicol/OneDrive/Documents/Graphismes/models/pbrDemo/pbrDemo.obj");
-
 	//creation de la physique qui gerera la position de la montgolfiere
 	Physique montgolPhysique;
 	montgolPhysique.vit = vec3(0);
@@ -68,6 +65,9 @@ int main() {
 
 	sphere mongolHitbox;
 	mongolHitbox.rayon = 2;
+	mongolHitbox.centre = vec3(0, 2, 0);
+	montgolPhysique.hitbox.push_back(mongolHitbox);
+
 
 
 	do {
@@ -78,10 +78,9 @@ int main() {
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
 
 		//fonction qui gere la physique de deplacement 
-		deplacement(&montgolPhysique, render.Window(), new std::vector<sphere>());
+		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
 		montgol.setPos(montgolPhysique.pos);
-		mongolHitbox.centre = montgolPhysique.pos + vec3(0, 2,0);
-
+	
 		//sphere::affichage.push_back();
 
 		//met a jour la camera avec la souris

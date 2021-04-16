@@ -7,8 +7,17 @@ void deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes) 
 	
 	montgol->acc = montgol->forces.vent + montgol->forces.g + montgol->forces.archi;
 	montgol->vit += montgol->acc * (float)win->getDeltaTime();
-	montgol->pos += montgol->vit * (float)win->getDeltaTime();
-	
+	vec3 futurPos = montgol->pos + montgol->vit * (float)win->getDeltaTime();
+
+	std::vector<sphere> mongolHitbox(montgol->hitbox.size());
+
+	for (size_t i = 0; i < montgol->hitbox.size(); i++)
+	{
+		mongolHitbox[i] = { montgol->hitbox[i].centre + montgol->pos, montgol->hitbox[i].rayon };
+	}
+
+	if (!testDeCollision(&mongolHitbox, hitboxes))
+		montgol->pos = futurPos;
 }
 
 float distance(vec3* a, vec3* b) {

@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <noise.h>
 #include <chrono>
-#include <SOURCE/deplacement.h>
+#include <SOURCE/Deplacement.h>
 
 #define CHUNK_SIZE 256
 #define MAX_RESOLUTION 10 //(8^2 = 256)

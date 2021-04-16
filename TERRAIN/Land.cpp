@@ -199,34 +199,62 @@ float Land::getSeaLevel() const
 	return Chunk::seaLevel;
 }
 
-std::vector<Chunk*> Land::getNearestChunks(unsigned int number, glm::vec3 pos)
+std::vector<Chunk*> Land::getNearestChunks(glm::vec3 pos)
 {
-	std::vector<Chunk*> chunks(number);
-	std::vector<float> distance(number, { 1000000000.0f });
-	float dst;
-	unsigned int numberOfC = 0;
+	std::vector<Chunk*> chunks;
 
-	for (auto y = land.begin(); y != land.end(); y++)
+	ivec2 PlayerChunk = convertPlayerPosToChunkPos(pos);
+
+	if (isLoaded(PlayerChunk))
+		chunks.push_back(land[PlayerChunk.x][PlayerChunk.y].get());
+	else
+		return chunks;
+
+	bool xPlus, zPlus;
+
+	xPlus = pos.x > chunks[0]->getCenter().x;
+	zPlus = pos.z > chunks[0]->getCenter().z;
+
+	ivec2 C[3];
+
+	if (xPlus) {
+		C[0] = PlayerChunk + ivec2(1, 0);
+	}
+	else {
+		C[0] = PlayerChunk + ivec2(-1, 0);
+	}
+	C[2].x = C[0].x;
+
+	if (zPlus) {
+		C[1] = PlayerChunk + ivec2(0, 1);
+	}
+	else {
+		C[1] = PlayerChunk + ivec2(0, -1);
+	}
+	C[2].y = C[1].y;
+
+	for (size_t i = 0; i < 3; i++)
 	{
-		for (auto x = y->second.begin(); x != y->second.end(); x++)
-		{
-			for (size_t i = 0; i < number; i++)
-			{
-				dst = glm::distance(x->second->getCenter(), pos);
-				if (distance[i] > dst) {
-					chunks[i] = x->second.get();
-					distance[i] = dst;
-					break;
-				}
-				numberOfC++;
-			}
-		}
+		if (isLoaded(C[i]))
+			chunks.push_back(land[C[i].x][C[i].y].get());
 	}
 
-	if (numberOfC < number)
-		chunks.resize(numberOfC);
-
 	return chunks;
+}
+
+std::vector<sphere>* Land::getHitbox(glm::vec3 pos)
+{
+	std::vector<Chunk*> chunks = getNearestChunks(pos);
+
+	static std::vector<sphere> hitboxes;
+	hitboxes.clear();
+
+	for (size_t i = 0; i < chunks.size(); i++)
+	{
+		hitboxes.insert(hitboxes.end(), chunks[i]->getHitbox()->begin(), chunks[i]->getHitbox()->end());
+	}
+
+	return &hitboxes;
 }
 
 void Land::initRefractionSystem()
@@ -330,18 +358,13 @@ void Land::drawWater(Shader* shader)
 	bool cullFace = glIsEnabled(GL_CULL_FACE);
 	glDisable(GL_CULL_FACE);
 
-	/*for (auto y = land.begin(); y != land.end(); y++)
+	for (auto y = land.begin(); y != land.end(); y++)
 	{
 
 		for (auto x = y->second.begin(); x != y->second.end(); x++)
 		{
 			x->second->drawWater(shader);
 		}
-	}*/
-	std::vector<Chunk* > N = this->getNearestChunks(4, cam->getPosition());
-	for (size_t i = 0; i < N.size(); i++)
-	{
-		N[i]->drawWater(shader);
 	}
 
 	if (cullFace)
