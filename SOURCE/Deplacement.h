@@ -1,6 +1,7 @@
 #pragma once
 #include <nico.hpp>
 #include <config.hpp>
+#include "Controls.h"
 
 //correspond à des forces sous forme d'accélération
 struct Forces {
@@ -46,6 +47,7 @@ void deplacement(Physique*, nico::Window*, std::vector<sphere>* hitboxes);
 float distance(glm::vec3* a, glm::vec3* b);
 bool collision(sphere* a, sphere* b);
 bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b);
+void parametrageDeLaCamera(nico::Camera* cam);
 
 //outils de devellopement
 void afficheHitbox(sphere* hitbox, nico::Shader* shader);

@@ -13,4 +13,4 @@
 
 glm::vec3 pousseeDArchimede(double masseAVide, double volume, double temperature);
 double masseVolumiqueAir(double temperature);
-glm::vec3 forceDuVent(nico::Window* win);
+glm::vec3 forceDuVent(nico::Window* win, nico::Camera* cam);

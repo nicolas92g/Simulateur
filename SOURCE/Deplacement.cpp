@@ -65,3 +65,19 @@ bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b)
 	}
 	return false;
 }
+
+void parametrageDeLaCamera(nico::Camera* cam)
+{
+	if (cam->getPosition().y > 1000) {
+		cam->setZFar(10000.0f);
+		cam->setZNear(10.0f);
+		Controls::zoomMin = 5.4f;
+		
+	}
+	else {
+		cam->setZFar(4000.0f);
+		cam->setZNear(0.4f);
+		Controls::zoomMin = 1.4f;
+	}
+	Controls::zoomMax = 20.0f;
+}

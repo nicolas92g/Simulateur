@@ -77,7 +77,7 @@ int main() {
 		text.updateDisplay(render.Window());
 
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
-		montgolPhysique.forces.vent = forceDuVent(render.Window());
+		montgolPhysique.forces.vent = forceDuVent(render.Window(), &player);
 
 		if (render.Window()->Key(GLFW_KEY_U))
 			montgolPhysique.vit = vec3(NULL);
@@ -90,6 +90,7 @@ int main() {
 
 		//met a jour la camera avec la souris
 		souris.update();
+		parametrageDeLaCamera(&player);
 		//player.classicKeyboardControls(render.Window(), 5);
 		//player.classicMouseControls(render.Window(), 0.003f);
 
@@ -105,7 +106,7 @@ int main() {
 		render.frame();
 
 		//glDepthFunc(GL_ALWAYS);
-		afficheHitbox(&sphere::affichage, render.Shader(), &montgolPhysique.pos, 20);
+		//afficheHitbox(&sphere::affichage, render.Shader(), &montgolPhysique.pos, 20);
 		sphere::affichage.clear();
 
 		//2d

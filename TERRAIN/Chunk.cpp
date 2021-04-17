@@ -146,13 +146,13 @@ void Chunk::CalculateHeights()
 
 			//avoid Z-fighting
 			if (heights[x][y] > seaLevel) {
-				if (heights[x][y] < (seaLevel + offsetBetweenSeaAndLand)) {
-					heights[x][y] = (seaLevel + offsetBetweenSeaAndLand);
+				if (heights[x][y] < ((double)seaLevel + offsetBetweenSeaAndLand)) {
+					heights[x][y] = ((double)seaLevel + offsetBetweenSeaAndLand);
 				}
 			}
 			else {
-				if (heights[x][y] > (seaLevel - offsetBetweenSeaAndLand)) {
-					heights[x][y] = (seaLevel - offsetBetweenSeaAndLand);
+				if (heights[x][y] > ((double)seaLevel - offsetBetweenSeaAndLand)) {
+					heights[x][y] = ((double)seaLevel - offsetBetweenSeaAndLand);
 				}
 			}
 		}

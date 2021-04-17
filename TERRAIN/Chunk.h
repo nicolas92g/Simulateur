@@ -54,7 +54,7 @@ protected:
 
 	//chunk
 	glm::ivec2 chunkGridPos;
-	std::unordered_map<short, std::unordered_map<short, double>> heights;
+	std::unordered_map<int, std::unordered_map<int, double>> heights;
 	noise::module::Perlin noise;
 	noise::module::RidgedMulti ridged;
 
