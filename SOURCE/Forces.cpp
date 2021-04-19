@@ -1,10 +1,4 @@
 #include "Forces.h"
-#define ACTION_DU_TEMPS 0.001
-#define ACTION_DU_ALTITUDE 0.01
-#define ACTION_DU_FROTTEMENT 0.2f
-#define AMPLITUDE_DU_VENT 5.0f
-#define TEMPERATURE_PERDUE_PAR_MILLISEC 0.002f
-#define VITESSE_DE_CHAUFFAGE 0.01
 
 glm::vec3 pousseeDArchimede(double masseAVide, double volume, double temperature) {
 
@@ -48,7 +42,7 @@ glm::vec3 ForceDuVent(float altitude, double temps) {
 	return direction * AMPLITUDE_DU_VENT;
 }
 
-glm::vec3 ForceDeFrottements (vec3 vitesse) {
+glm::vec3 ForceDeFrottements(vec3 vitesse) {
 	vec3 fr = -vitesse;
 	float vit = glm::length(vitesse);
 	return fr * ACTION_DU_FROTTEMENT * vit;

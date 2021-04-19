@@ -9,6 +9,8 @@
 using namespace nico;
 using namespace glm;
 
+#define NOMBRE_DE_CHUNK_MIN 4
+
 
 int main() {
 	//initialisation
@@ -20,10 +22,12 @@ int main() {
 	player.setPosition(vec3(-458, 10, 3470));
 	Renderer2d render2d(render.Window());
 
+	KeySwitch fullscreen(render.Window(), GLFW_KEY_F11);
+
 	NumberInput masse(render.Window());
 	render2d.addElement(&masse);
 	masse.setPosition(vec2(200, 200));
-	masse.setValue(50);
+	masse.setValue(200);
 
 	NumberInput volume(render.Window());
 	render2d.addElement(&volume);
@@ -69,9 +73,19 @@ int main() {
 	mongolHitbox.centre = vec3(0, 2, 0);
 	montgolPhysique.hitbox.push_back(mongolHitbox);
 
+	//tant qu'il n'y a pas assez de chunk on met a jour le terrain et c'est tous
+	while (terrain.getNumberOfLoadedChunks() < NOMBRE_DE_CHUNK_MIN) {
+		terrain.update();
+	}
 
+	//start window timer
+	glfwSetTime(0.0);
 
 	do {
+		//pleine ecran (F11):
+		if(fullscreen.justSwitch())
+			render.Window()->setFullscreen(fullscreen);
+
 		//nettoie l'image
 		render.clear();
 		text.updateDisplay(render.Window());
@@ -81,14 +95,11 @@ int main() {
 
 
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
-		montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
+		montgolPhysique.forces.vent = ControleGodVent(render.Window(), &player); //ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
 		montgolPhysique.forces.frottements = ForceDeFrottements(montgolPhysique.vit);
 
-		if (render.Window()->Key(GLFW_KEY_U))
-			montgolPhysique.vit = vec3(NULL);
-
-
-		//fonction qui gere la physique de deplacement 
+		//fonction qui gere la physique de deplacement
+		
 		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
 		montgol.setPos(montgolPhysique.pos);
 	
@@ -117,8 +128,9 @@ int main() {
 
 		//2d
 		render2d.frame();
-		text.printLeftTop(nico::strings::vec3Tostring(montgolPhysique.pos) + "  " + std::to_string(montgolPhysique.acc.y)
-			+ strings::vec3Tostring(montgolPhysique.forces.vent) + std::to_string(glm::length(montgolPhysique.vit)));
+		text.printLeftTop(nico::strings::ivec3Tostring(montgolPhysique.pos) + " | acc : " + 
+			std::to_string((float)((int)((montgolPhysique.forces.archi.y + montgolPhysique.forces.g.y) * 100)) * 0.01f) + " | vit : "
+			+ std::to_string(glm::length(montgolPhysique.vit)));
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 

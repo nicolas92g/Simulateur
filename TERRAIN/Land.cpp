@@ -161,6 +161,21 @@ bool Land::isLoaded(glm::ivec2 chunk)
 	return it->second.find(chunk.y) != it->second.end();
 }
 
+uint32_t Land::getNumberOfLoadedChunks()
+{
+	uint32_t count(0);
+
+	for (auto& x : land)
+	{
+		for (auto& chunk : x.second)
+		{
+			if (chunk.second->wasCreated())
+				count++;
+		}
+	}
+	return count;
+}
+
 void Land::draw(Shader* shader)
 {
 	updateRefraction(shader);

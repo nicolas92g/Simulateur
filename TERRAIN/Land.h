@@ -12,6 +12,7 @@ public:
 
 	void update();
 	bool isLoaded(glm::ivec2 chunk);
+	uint32_t getNumberOfLoadedChunks();
 
 	void draw(nico::Shader* shader);
 	void draw();

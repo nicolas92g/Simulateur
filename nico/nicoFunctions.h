@@ -73,6 +73,18 @@ namespace nico
 		 * @brief convert a vector in a string
 		 */
 		std::string vec2Tostring(glm::vec2);
+		/**
+		 * @brief convert a int vector in a string
+		 */
+		std::string ivec4Tostring(glm::ivec4);
+		/**
+		 * @brief convert a int vector in a string
+		 */
+		std::string ivec3Tostring(glm::ivec3);
+		/**
+		 * @brief convert a int vector in a string
+		 */
+		std::string ivec2Tostring(glm::ivec2);
 	}
 #endif //strings
 
@@ -238,6 +250,30 @@ inline void nico::print(glm::vec3 value)
 }
 template<>
 inline void nico::print(glm::vec4 value)
+{
+	std::cout << "("
+		+ std::to_string(value.x) + ", \t"
+		+ std::to_string(value.y) + ", \t"
+		+ std::to_string(value.z) + ", \t"
+		+ std::to_string(value.w) + ")";
+}
+template<>
+inline void nico::print(glm::ivec2 value)
+{
+	std::cout << "("
+		+ std::to_string(value.x) + ", \t"
+		+ std::to_string(value.y) + ")";
+}
+template<>
+inline void nico::print(glm::ivec3 value)
+{
+	std::cout << "("
+		+ std::to_string(value.x) + ", \t"
+		+ std::to_string(value.y) + ", \t"
+		+ std::to_string(value.z) + ")";
+}
+template<>
+inline void nico::print(glm::ivec4 value)
 {
 	std::cout << "("
 		+ std::to_string(value.x) + ", \t"

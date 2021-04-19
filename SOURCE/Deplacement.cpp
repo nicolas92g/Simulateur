@@ -72,7 +72,9 @@ void parametrageDeLaCamera(nico::Camera* cam)
 		cam->setZFar(10000.0f);
 		cam->setZNear(10.0f);
 		Controls::zoomMin = 5.4f;
-		
+
+		if(Controls::zoom < Controls::zoomMin)
+			Controls::zoom = 5.4f;
 	}
 	else {
 		cam->setZFar(4000.0f);

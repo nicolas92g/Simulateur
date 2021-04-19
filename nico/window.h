@@ -24,20 +24,9 @@ namespace nico {
 		int fps;
 		double deltaTime;
 		double time;
+		bool pauseIfUnfocused;
 
 	public:
-		/** start a vulkan rendering (not finished at all so dont use it)*/
-		Window();
-		/**
-		 * start an open gl window.
-		 * 
-		 * \param openglMajorVersion
-		 * \param openglMinorVersion
-		 * \param debugMode
-		 * \param antialiasingLevel
-		 * \param title
-		 * \param widthAndHeight
-		 */
 		Window(int openglMajorVersion,
 			int openglMinorVersion , 
 			bool debugMode, 
@@ -87,6 +76,10 @@ namespace nico {
 		 * \param hide
 		 */
 		void hideCursor(bool hide);
+		/**
+		 * @brief set the window in fullscreen
+		 */
+		void setFullscreen(bool mode);
 
 		//accessors :
 		/**
@@ -99,7 +92,15 @@ namespace nico {
 		 * \return 
 		 */
 		glm::vec2 getSize() const;
+		/**
+		 * @brief return the width in pixel of the window
+		 * \return 
+		 */
 		int getWidth() const;
+		/**
+		 * @brief return the height in pixel of the window
+		 * \return 
+		 */
 		int getHeight() const;
 		/**
 		 * @brief get the cursor x location on the window
@@ -122,7 +123,7 @@ namespace nico {
 		 */
 		double getDeltaTime() const;
 		/**
-		 * @brief get the frame per seconds
+		 * @brief get the framerate
 		 * \return 
 		 */
 		int getFps() const;
@@ -145,7 +146,7 @@ namespace nico {
 		 * \param x
 		 * \param y
 		 */
-		void setPos(int x,int y);
+		void setPos(int x, int y);
 		/**
 		 * @brief change the cursor location
 		 * \param x
