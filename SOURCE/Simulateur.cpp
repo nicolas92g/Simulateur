@@ -13,15 +13,22 @@ using namespace glm;
 
 
 int main() {
-	//initialisation
+	//initialisation de l'afficheur 3D 
 	Renderer render;
+
+	//creer un afficheur de texte avec la police par default
 	TextRenderer text;
+
+	//creer la camera
 	Camera player;
 	render.useCamera(&player);
 	player.setZFar(4000);
 	player.setPosition(vec3(-458, 10, 3470));
+
+	//creer l'afficheur 2D
 	Renderer2d render2d(render.Window());
 
+	//creer un switch (on/off) pour le mode pleine ecran
 	KeySwitch fullscreen(render.Window(), GLFW_KEY_F11);
 
 	NumberInput masse(render.Window());
@@ -68,17 +75,18 @@ int main() {
 	//titre de la fenetre
 	render.Window()->setTitle(" Simulateur de montgolfiere ( v-46.3.2 )");
 
+	//creation de la hitbox de la mongolfiere
 	sphere mongolHitbox;
 	mongolHitbox.rayon = 2;
 	mongolHitbox.centre = vec3(0, 2, 0);
 	montgolPhysique.hitbox.push_back(mongolHitbox);
 
-	//tant qu'il n'y a pas assez de chunk on met a jour le terrain et c'est tous
+	//attends qu'un certain nbr de chunks soit chargé pour commencer a afficher
 	while (terrain.getNumberOfLoadedChunks() < NOMBRE_DE_CHUNK_MIN) {
 		terrain.update();
 	}
 
-	//start window timer
+	//redemarre le compteur de temps pour eviter d'avoir un enorme delta-T a la premiere image
 	glfwSetTime(0.0);
 
 	do {
@@ -90,27 +98,28 @@ int main() {
 		render.clear();
 		text.updateDisplay(render.Window());
 
+		//gestion de la temperature
 		temperature.setValue(ControleTemperature(render.Window(),temperature.getValue()));
 
-
-
+		//creation des forces qui s'appliquent sur la montgolfiere
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
 		montgolPhysique.forces.vent = ControleGodVent(render.Window(), &player); //ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
 		montgolPhysique.forces.frottements = ForceDeFrottements(montgolPhysique.vit);
 
 		//fonction qui gere la physique de deplacement
-		
 		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
+		
+		//afficher la montgolfiere a la nouvelle position 
 		montgol.setPos(montgolPhysique.pos);
-	
-		//sphere::affichage.push_back();
 
 		//met a jour la camera avec la souris
 		souris.update();
-		parametrageDeLaCamera(&player);
 		//player.classicKeyboardControls(render.Window(), 5);
 		//player.classicMouseControls(render.Window(), 0.003f);
 
+		//parametre la camera en fonction de l'altitude (sert a eviter le + possible le Z-fighting)
+		parametrageDeLaCamera(&player);
+		
 		//affiche l'image d'arriere plan
 		render.drawEnvironmentMapAsSkyMap();
 
@@ -124,9 +133,9 @@ int main() {
 
 		//glDepthFunc(GL_ALWAYS);
 		//afficheHitbox(&sphere::affichage, render.Shader(), &montgolPhysique.pos, 20);
-		sphere::affichage.clear();
+		//sphere::affichage.clear();
 
-		//2d
+		//affichage 2d
 		render2d.frame();
 		text.printLeftTop(nico::strings::ivec3Tostring(montgolPhysique.pos) + " | acc : " + 
 			std::to_string((float)((int)((montgolPhysique.forces.archi.y + montgolPhysique.forces.g.y) * 100)) * 0.01f) + " | vit : "
@@ -136,7 +145,7 @@ int main() {
 
 	while (Chunk::getNumberOfWorkingThreads());//attends que tous les programmes parallele soit terminé
 
-	return 0;
+	return 0;//exit
 }
 
 
