@@ -76,11 +76,17 @@ int main() {
 		render.clear();
 		text.updateDisplay(render.Window());
 
+		temperature.setValue(ControleTemperature(render.Window(),temperature.getValue()));
+
+
+
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
-		montgolPhysique.forces.vent = forceDuVent(render.Window(), &player);
+		montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
+		montgolPhysique.forces.frottements = ForceDeFrottements(montgolPhysique.vit);
 
 		if (render.Window()->Key(GLFW_KEY_U))
 			montgolPhysique.vit = vec3(NULL);
+
 
 		//fonction qui gere la physique de deplacement 
 		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
@@ -111,7 +117,8 @@ int main() {
 
 		//2d
 		render2d.frame();
-		text.printLeftTop(nico::strings::vec3Tostring(montgolPhysique.pos) + "  " + std::to_string(montgolPhysique.acc.y));
+		text.printLeftTop(nico::strings::vec3Tostring(montgolPhysique.pos) + "  " + std::to_string(montgolPhysique.acc.y)
+			+ strings::vec3Tostring(montgolPhysique.forces.vent) + std::to_string(glm::length(montgolPhysique.vit)));
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 

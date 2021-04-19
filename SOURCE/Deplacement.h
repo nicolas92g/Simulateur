@@ -2,17 +2,19 @@
 #include <nico.hpp>
 #include <config.hpp>
 #include "Controls.h"
-
+#include "Forces.h"
 //correspond à des forces sous forme d'accélération
 struct Forces {
 	glm::vec3 archi;
 	glm::vec3 g;
 	glm::vec3 vent;
+	glm::vec3 frottements;
 
 	Forces() {
 		archi = vec3(0);
 		g = vec3(0, -9.81, 0);
 		vent = vec3(0);
+		frottements = vec3(0);
 	}
 };
 

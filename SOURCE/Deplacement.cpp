@@ -5,7 +5,7 @@ using namespace glm;
 
 void deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes) {
 	
-	montgol->acc = montgol->forces.vent + montgol->forces.g + montgol->forces.archi;
+	montgol->acc = montgol->forces.vent + montgol->forces.g + montgol->forces.archi + montgol->forces.frottements;
 	montgol->vit += montgol->acc * (float)win->getDeltaTime();
 	vec3 futurPos = montgol->pos + montgol->vit * (float)win->getDeltaTime();
 
