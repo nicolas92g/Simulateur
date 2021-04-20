@@ -5,6 +5,7 @@
 #include "Controls.h"
 #include "Deplacement.h"
 #include "Forces.h"
+#include "interface2d.h"
 
 using namespace nico;
 using namespace glm;
@@ -45,6 +46,10 @@ int main() {
 	render2d.addElement(&temperature);
 	temperature.setPosition(vec2(200, 300));
 	temperature.setValue(23.66f);
+
+	Boussole::createTexture();
+	Boussole boussole(render.Window());
+	render2d.addElement(&boussole);
 
 	//Creation de la Montgolfière
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
