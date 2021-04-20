@@ -114,7 +114,7 @@ int main() {
 
 		//met a jour la camera avec la souris
 		souris.update();
-		//player.classicKeyboardControls(render.Window(), 5);
+		//player.classicKeyboardControls(render.Window(), 30);
 		//player.classicMouseControls(render.Window(), 0.003f);
 
 		//parametre la camera en fonction de l'altitude (sert a eviter le + possible le Z-fighting)
