@@ -19,7 +19,18 @@ void deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes) 
 	if (!testDeCollision(&mongolHitbox, hitboxes))
 		montgol->pos = futurPos;
 	else {
-		montgol->vit = vec3(0);
+		//supprime le deplacement horizontal
+		futurPos.x = montgol->pos.x;
+		futurPos.z = montgol->pos.z;
+		//reteste la collsion uniquement a la verticale
+		for (size_t i = 0; i < montgol->hitbox.size(); i++)
+		{
+			mongolHitbox[i] = { montgol->hitbox[i].centre + futurPos, montgol->hitbox[i].rayon };
+		}
+		if (!testDeCollision(&mongolHitbox, hitboxes))
+			montgol->pos = futurPos;
+		else
+			montgol->vit = vec3(0);
 	}
 }
 

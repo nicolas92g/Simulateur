@@ -45,11 +45,17 @@ int main() {
 	NumberInput temperature(render.Window());
 	render2d.addElement(&temperature);
 	temperature.setPosition(vec2(200, 300));
-	temperature.setValue(23.66f);
+	temperature.setValue(45.66f);
 
 	Boussole::createTexture();
-	Boussole boussole(render.Window());
-	render2d.addElement(&boussole);
+	Boussole sunBoussole(render.Window(), &player, &text);
+	sunBoussole.setName("soleil");
+	sunBoussole.setMultiplyColor(vec3(1,1,0));
+	render2d.addElement(&sunBoussole);
+
+	Boussole vent(render.Window(), &player, &text);
+	vent.setName("direction du vent");
+	render2d.addElement(&vent);
 
 	//Creation de la Montgolfière
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
@@ -69,6 +75,7 @@ int main() {
 	DirectionalLight sun(vec3(-0.5, -0.2, -0.4));
 	sun.setColor(vec3(3));
 	render.setDirectionalLight(&sun);
+	sunBoussole.setDirection(-sun.getDirection());
 
 	//creation de l'image d'arriere plan
 	render.loadEnvironmentMap(NICO_TEXTURES_PATH"sky.hdr");
@@ -108,8 +115,12 @@ int main() {
 
 		//creation des forces qui s'appliquent sur la montgolfiere
 		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
-		montgolPhysique.forces.vent = ControleGodVent(render.Window(), &player); //ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
+		//montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
+		montgolPhysique.forces.vent = ControleGodVent(render.Window(), &player);
 		montgolPhysique.forces.frottements = ForceDeFrottements(montgolPhysique.vit);
+
+		//met a jour la boussole du vent
+		vent.setDirection(montgolPhysique.forces.vent);
 
 		//fonction qui gere la physique de deplacement
 		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
