@@ -21,3 +21,32 @@ private:
 
 	static std::shared_ptr<nico::Texture> image;
 };
+
+class GameOverInterface : public nico::Object2d {
+public:
+	GameOverInterface(nico::Window* win, nico::TextRenderer* text);
+	void draw(nico::Shader* shader);
+
+	enum class State
+	{
+		waiting, playing, recommencer, reprendre
+	};
+
+	void setState(State state);
+	State getState() const;
+
+
+
+private:
+	nico::Texture background;
+	nico::Window* win;
+	nico::TextRenderer* text;
+
+	nico::Button recommencer;
+	nico::Button reprendre;
+	nico::Button quitter;
+
+	State state;
+
+
+};

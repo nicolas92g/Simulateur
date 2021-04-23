@@ -3,6 +3,7 @@
 #include <config.hpp>
 #include "Controls.h"
 #include "Forces.h"
+
 //correspond à des forces sous forme d'accélération
 struct Forces {
 	glm::vec3 archi;
@@ -45,7 +46,7 @@ struct Physique {
 
 //toutes les fonctions qui implemente le deplacement du joueur
 
-void deplacement(Physique*, nico::Window*, std::vector<sphere>* hitboxes);
+bool deplacement(Physique*, nico::Window*, std::vector<sphere>* hitboxes, float multiTemps);
 float distance(glm::vec3* a, glm::vec3* b);
 bool collision(sphere* a, sphere* b);
 bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b);

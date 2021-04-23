@@ -11,6 +11,8 @@ using namespace nico;
 using namespace glm;
 
 #define NOMBRE_DE_CHUNK_MIN 4
+#define DEFAULT_POS vec3(-458, 3.5 , 3470)
+#define DEFAULT_TEMPERATURE 45
 
 
 int main() {
@@ -24,7 +26,7 @@ int main() {
 	Camera player;
 	render.useCamera(&player);
 	player.setZFar(4000);
-	player.setPosition(vec3(-458, 10, 3470));
+	player.setPosition(DEFAULT_POS);
 
 	//creer l'afficheur 2D
 	Renderer2d render2d(render.Window());
@@ -45,7 +47,13 @@ int main() {
 	NumberInput temperature(render.Window());
 	render2d.addElement(&temperature);
 	temperature.setPosition(vec2(200, 300));
-	temperature.setValue(45.66f);
+	temperature.setValue(DEFAULT_TEMPERATURE);
+
+	NumberInput temps(render.Window());
+	render2d.addElement(&temps);
+	temps.setPosition(vec2(200, 400));
+	temps.setValue(1.0f);
+	temps.setStep(0.001);
 
 	Boussole::createTexture();
 	Boussole sunBoussole(render.Window(), &player, &text);
@@ -57,6 +65,12 @@ int main() {
 	vent.setName("direction du vent");
 	render2d.addElement(&vent);
 
+	//GameOver Interface
+	GameOverInterface gameOverInterface(render.Window(), &text);
+	render2d.addElement(&gameOverInterface);
+	bool gameOver = false;
+	
+
 	//Creation de la Montgolfière
 	Model montgolGeo(NICO_PATH"MODELISATION/baloon.obj");
 	Object3d montgol(&montgolGeo);
@@ -65,7 +79,7 @@ int main() {
 	//creation de la physique qui gerera la position de la montgolfiere
 	Physique montgolPhysique;
 	montgolPhysique.vit = vec3(0);
-	montgolPhysique.pos = vec3(-458, 10, 3470);
+	montgolPhysique.pos = DEFAULT_POS;
 	
 	//creation du control de la camera avec la souris
 	Controls souris(&player, &montgol, render.Window(),vec3(0, 2, 0));
@@ -111,11 +125,11 @@ int main() {
 		text.updateDisplay(render.Window());
 
 		//gestion de la temperature
-		temperature.setValue(ControleTemperature(render.Window(),temperature.getValue()));
+		temperature.setValue(ControleTemperature(render.Window(),temperature.getValue(), temps.getValue()));
 
 		//creation des forces qui s'appliquent sur la montgolfiere
-		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue());
-		//montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime());
+		montgolPhysique.forces.archi = pousseeDArchimede(masse.getValue(),volume.getValue(),temperature.getValue(), montgolPhysique.pos.y);
+		montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime(), temps.getValue());
 		montgolPhysique.forces.vent = ControleGodVent(render.Window(), &player);
 		montgolPhysique.forces.frottements = ForceDeFrottements(montgolPhysique.vit);
 
@@ -123,13 +137,43 @@ int main() {
 		vent.setDirection(montgolPhysique.forces.vent);
 
 		//fonction qui gere la physique de deplacement
-		deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos));
 		
+		if (!gameOver) {
+
+
+
+
+			gameOver = deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos), temps.getValue());
+
+			if (gameOver) {
+				gameOverInterface.setState(GameOverInterface::State::waiting);
+				render.Window()->hideCursor(false);
+			}
+		}
+		else {
+			if (gameOverInterface.getState() == GameOverInterface::State::reprendre) {
+				gameOver = false;
+				montgolPhysique.pos.y = 50;
+				montgolPhysique.vit = vec3(0);
+				gameOverInterface.setState(GameOverInterface::State::playing);
+			}
+			else if (gameOverInterface.getState() == GameOverInterface::State::recommencer) {
+				gameOver = false;
+				montgolPhysique.pos = DEFAULT_POS;
+				montgolPhysique.vit = vec3(0);
+				temperature.setValue(DEFAULT_TEMPERATURE);
+				gameOverInterface.setState(GameOverInterface::State::playing);
+
+			}
+		}
+			
+			
 		//afficher la montgolfiere a la nouvelle position 
 		montgol.setPos(montgolPhysique.pos);
 
 		//met a jour la camera avec la souris
-		souris.update();
+		if (!gameOver)
+			souris.update();
 		//player.classicKeyboardControls(render.Window(), 30);
 		//player.classicMouseControls(render.Window(), 0.003f);
 
