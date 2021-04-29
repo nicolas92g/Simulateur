@@ -8,19 +8,14 @@ nico::NumberInput::NumberInput(Window* win, glm::vec2 position, glm::vec2 scale)
 	this->timeStayedClick = 0;
 	this->step = 0.01;
 	this->text = "0";
+
+	maxValue = DBL_MAX;
+	minValue = DBL_MIN;
 }
 
 const double nico::NumberInput::getValue() const
 {
-	if (!this->text.length())
-		return 0.0;
-
-	try {
-		return stod(this->text);
-	}
-	catch (...) {
-		return 0.0;
-	}
+	return std::max(minValue, std::min(maxValue, getDisplayedValue()));
 }
 
 const double nico::NumberInput::getStep() const
@@ -30,6 +25,8 @@ const double nico::NumberInput::getStep() const
 
 void nico::NumberInput::setValue(double value)
 {
+	value = std::max(minValue, std::min(maxValue, value));
+
 	text = std::to_string(value);
 
 	uint32_t i = text.size() - 1;
@@ -50,6 +47,24 @@ void nico::NumberInput::setStep(double step)
 		this->step = step;
 }
 
+void nico::NumberInput::setLimits(double min, double max)
+{
+	if (min >= max) return;
+
+	minValue = min;
+	maxValue = max;
+}
+
+const double nico::NumberInput::getMin() const
+{
+	return minValue;
+}
+
+const double nico::NumberInput::getMax() const
+{
+	return maxValue;
+}
+
 void nico::NumberInput::draw(Shader* shader)
 {
 	if (!this->win->Mouse(GLFW_MOUSE_BUTTON_LEFT)) {
@@ -65,15 +80,15 @@ void nico::NumberInput::draw(Shader* shader)
 			this->win->setCursorPos(pos.x, pos.y);
 		}
 		else if (this->timeStayedClick > REP_BEFORE_TAKING_MOUSE) {
-			this->setValue(this->getValue() + (win->getCursorX() - pos.x) * this->step);
+			this->setValue(this->getDisplayedValue() + (win->getCursorX() - pos.x) * this->step);
 			this->win->setCursorPos(pos.x, pos.y);
 			this->win->hideCursor(true);
 		}
 		else {
 			this->win->hideCursor(false);
 		}
+		this->setValue(this->getDisplayedValue());
 	}
-	
 
 	TextInput::draw(shader);
 } 
@@ -82,4 +97,17 @@ void nico::NumberInput::update()
 {
 	if (!this->text.length())
 		this->text = "0";
+}
+
+double nico::NumberInput::getDisplayedValue() const
+{
+	if (!this->text.length())
+		return minValue;
+
+	try {
+		return stod(this->text);
+	}
+	catch (...) {
+		return minValue;
+	}
 }

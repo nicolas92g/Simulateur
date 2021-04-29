@@ -149,13 +149,6 @@ void main(){
 
     pbr.ao = 1;
 
-    float dst = distance(vec3(viewPos.x, 0, viewPos.z), fragPos);
-    
-    if(dst > FOG_DISTANCE){
-        pbr.alpha -= (dst - FOG_DISTANCE) * 0.002;
-    }
-
-    
    
     
 
@@ -207,6 +200,11 @@ void main(){
     vec3 color = (ambient * ambientStrength) + Lo;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
+
+    float dst = distance(vec3(viewPos.x, 0, viewPos.z), fragPos);
+        if(dst > FOG_DISTANCE){
+        pbr.alpha -= (dst - FOG_DISTANCE) * 0.002;
+    }
    
     FragColor = vec4(color, pbr.alpha);
 
@@ -227,12 +225,12 @@ void calcColor(vec3 N){
         normal = normalize(TBN * normal);
         
     
-        pbr.roughness = 0.005;
+        pbr.roughness = 0.05;
         pbr.metallic = 1;
         pbr.normal = normal;
-        pbr.alpha = 0.8;
+        pbr.alpha = 0.5;
 
-        //pbr.alpha = mix(pbr.alpha, 1, distance(fragPos, viewPos) * 0.02);
+        pbr.alpha = min(mix(pbr.alpha, 1, distance(fragPos, viewPos) * 0.02), 1);
         
         pbr.baseColor = vec3(0.1, 0.4, 0.9);
         return;

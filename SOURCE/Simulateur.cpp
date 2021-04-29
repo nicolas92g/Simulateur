@@ -52,8 +52,9 @@ int main() {
 	NumberInput temps(render.Window());
 	render2d.addElement(&temps);
 	temps.setPosition(vec2(200, 400));
-	temps.setValue(1.0f);
+	temps.setValue(1.0);
 	temps.setStep(0.001);
+	temps.setLimits(1.0, 20.0);
 
 	Boussole::createTexture();
 	Boussole sunBoussole(render.Window(), &player, &text);
