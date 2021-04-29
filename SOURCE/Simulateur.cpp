@@ -189,6 +189,7 @@ int main() {
 		terrain.draw();
 
 		//affiche tous les Object3d
+		render.setShadows(montgolPhysique.pos, 100.0f);
 		render.update();
 		render.frame();
 

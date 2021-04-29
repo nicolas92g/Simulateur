@@ -139,6 +139,10 @@ namespace nico {
 		 * \param shader
 		 */
 		void sendLightsToShader(Shader* shader);
+		/**
+		 * @brief set the cube where shadows will be rendered
+		 */
+		void setShadows(const glm::vec3& location, float size);
 
 		//accessors
 		/**
@@ -185,6 +189,8 @@ namespace nico {
 		uint32_t shadowDepthTextureId;//open gl id of the texture used as a depth map
 		uint32_t shadowTextureSize;//the texture is a square so this number is the length of each edges
 		glm::mat4 lightVP;//this is the multiplication of the orthographic projection and the view matrices
+		glm::vec3 shadowCubeCenter;//describe the location of the center of the cube where shadows are updated
+		float shadowCubeSize;//describe the size of the cube where shadows are updated
 
 		//configure the framebuffer and his texture
 		void initShadowSystem(uint32_t depthMapSize);
