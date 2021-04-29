@@ -34,6 +34,7 @@ void nico::TextInput::draw(Shader* shader)
 
 		float mouse = win->getCursorX() - textPosition.x;
 		float advance = 0;
+
 		for (size_t i = 0; i < text.size(); i++)
 		{
 			if (mouse < advance) {
@@ -43,6 +44,10 @@ void nico::TextInput::draw(Shader* shader)
 			advance += textObject->Text.getAdvance(text[i], scale.y);
 		}
 	}
+
+	if (std::max(cursorIndex, 0) >= text.size())
+		cursorIndex = text.size() - 1;
+
 	//unselect button
 	if (!isHover() and win->Mouse(GLFW_MOUSE_BUTTON_LEFT)) {
 		selected = false;
@@ -58,9 +63,6 @@ void nico::TextInput::draw(Shader* shader)
 		if (left->isDown()) {
 			left1();
 		}
-
-		if (cursorIndex >= text.size())
-			cursorIndex = text.size() - 1;
 
 		if(back->isDown()){
 			if (cursorIndex > -1) {
@@ -105,8 +107,10 @@ void nico::TextInput::draw(Shader* shader)
 		updateTextToRender();
 		
 		//cursor
-		if (cursorIndex <= 0)
+		if (cursorIndex < 0)
 			textObject->cursor.setPosition(initialPos);
+		if (cursorIndex == 0)
+			textObject->cursor.setPosition(initialPos + glm::vec2(calculateAdvance(0, 0), .0f));
 		else
 			textObject->cursor.setPosition(initialPos + glm::vec2(calculateAdvance(0, cursorIndex), .0f));
 
@@ -147,7 +151,6 @@ void nico::TextInput::draw(Shader* shader)
 void nico::TextInput::setText(std::string newText)
 {
 	text = newText;
-	cursorIndex = 0;
 }
 
 void nico::TextInput::setFilterLetters(std::string chars)
