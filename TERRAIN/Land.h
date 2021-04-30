@@ -12,6 +12,7 @@ public:
 
 	void update();
 	bool isLoaded(glm::ivec2 chunk);
+	uint32_t getNumberOfLoadedChunks();
 
 	void draw(nico::Shader* shader);
 	void draw();
@@ -20,8 +21,10 @@ public:
 
 	void setSeaLevel(float seaLevel);
 	float getSeaLevel() const;
+	void checkBadGeneration();
 
-	std::vector<Chunk*> getNearestChunks(unsigned int number, glm::vec3 pos);
+	std::vector<Chunk*> getNearestChunks(glm::vec3 pos);
+	std::vector<sphere>* getHitbox(glm::vec3 pos);
 
 protected:
 	nico::Shader* shader;

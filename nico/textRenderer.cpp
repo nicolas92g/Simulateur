@@ -131,24 +131,24 @@ unsigned int nico::TextRenderer::getLastHeight() const
 }
 
 
-void nico::TextRenderer::print(std::string text, float x, float y, float scale, glm::vec4 color, bool background)
+void nico::TextRenderer::print(const std::string& text, float x, float y, float scale, glm::vec4 color, bool background)
 {
     fillWidthAndHeight(&text, scale);
     renderText(text, x, y, scale, color, background);
 }
 
-void nico::TextRenderer::printLeftTop(std::string text, float x, float y, float scale, glm::vec4 color, bool background)
+void nico::TextRenderer::printLeftTop(const std::string& text, float x, float y, float scale, glm::vec4 color, bool background)
 {
     fillWidthAndHeight(&text, scale);
     renderText(text, x, windowsHeight - y - height, scale, color, background);
 }
 
-void nico::TextRenderer::printRightTop(std::string text, float x, float y, float scale, glm::vec4 color, bool background)
+void nico::TextRenderer::printRightTop(const std::string& text, float x, float y, float scale, glm::vec4 color, bool background)
 {
     this->print(text, windowsWidth - x, windowsHeight - y, scale, color, background);
 }
 
-void nico::TextRenderer::printLeftBottom(std::string text, float x, float y, float scale, glm::vec4 color, bool background)
+void nico::TextRenderer::printLeftBottom(const std::string& text, float x, float y, float scale, glm::vec4 color, bool background)
 {
     this->print(text, windowsWidth - x, y, scale, color, background);
 }
@@ -171,7 +171,7 @@ float nico::TextRenderer::getAdvance(char asciiCHaracter, float scale)
     return (float(Characters[asciiCHaracter].Advance >> 6) * scale);
 }
 
-void nico::TextRenderer::fillWidthAndHeight(std::string* text, float scale)
+void nico::TextRenderer::fillWidthAndHeight(const std::string* text, float scale)
 {
     width = 0;
     height = 0;
@@ -191,7 +191,7 @@ void nico::TextRenderer::fillWidthAndHeight(std::string* text, float scale)
     }
 }
 
-void nico::TextRenderer::renderText(std::string text, float x, float y, float scale, glm::vec4 color, bool background)
+void nico::TextRenderer::renderText(const std::string& text, float x, float y, float scale, glm::vec4 color, bool background)
 {
     glDepthFunc(GL_ALWAYS);
 

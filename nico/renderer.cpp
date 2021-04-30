@@ -66,7 +66,7 @@ void nico::Renderer::update()
 	}
 
 	//update dynamic shadow depth map
-	updateShadows(cam->getPosition(), dirLight->getDirection(), 40);
+	updateShadows(shadowCubeCenter, dirLight->getDirection(), shadowCubeSize);
 }
 
 void nico::Renderer::frame(uint32_t frameBuffer, uint32_t viewportX, uint32_t viewportY)
@@ -253,6 +253,12 @@ void nico::Renderer::sendLightsToShader(nico::Shader* shader)
 	//set the directional light in the shader
 	if (dirLight != nullptr)
 		dirLight->sendToShader(shader);
+}
+
+void nico::Renderer::setShadows(const glm::vec3& location, float size)
+{
+	shadowCubeCenter = location;
+	if (size > .1f) shadowCubeSize = size * .5f;
 }
 
 void nico::Renderer::initShadowSystem(uint32_t depthMapSize)

@@ -126,6 +126,7 @@ void main(){
     for (int i = 0; ((i < int(numberOfSpot)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
     {           
         Lo += CalcSpotLight(spotLight[i], F0, pbr.normal, fragPos, V);
+        
     }
 
     //directional light
@@ -185,7 +186,8 @@ vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir){
         vec3 H = normalize(viewDir + L);
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-        vec3 radiance     = light.diffuse * attenuation;
+        attenuation = 1.0 / (1 + 0.2 * distance);
+        vec3 radiance  = light.diffuse * attenuation;
         
         // cook-torrance brdf
         float NDF = DistributionGGX(pbr.normal, H, pbr.roughness);
@@ -194,11 +196,11 @@ vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir){
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - pbr.metallic;	  
+        kD *= 1.0 - pbr.metallic;
         
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(pbr.normal, viewDir), 0.0) * max(dot(pbr.normal, L), 0.0);
-        vec3 specularColor     = numerator / max(denominator, 0.001) ;//* attenuation;
+        vec3 specularColor = numerator / max(denominator, 0.001) ;//* attenuation;
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(pbr.normal, L), 0.0);                

@@ -55,7 +55,7 @@ namespace nico {
 		 * \param color
 		 * \param background
 		 */
-		void print(std::string text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
+		void print(const std::string& text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
 		/**
 		 * same as the print function but with the origin at the top left corner of the windows
 		 * \param text
@@ -65,7 +65,7 @@ namespace nico {
 		 * \param color
 		 * \param background
 		 */
-		void printLeftTop(std::string text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
+		void printLeftTop(const std::string& text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
 		/**
 		 * same as the print function but with the origin at the top right corner of the windows
 		 * \param text
@@ -75,7 +75,7 @@ namespace nico {
 		 * \param color
 		 * \param background
 		 */
-		void printRightTop(std::string text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
+		void printRightTop(const std::string& text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
 		/**
 		 * same as the print function but with the origin at the bottom left corner of the windows
 		 * \param text
@@ -85,7 +85,7 @@ namespace nico {
 		 * \param color
 		 * \param background
 		 */
-		void printLeftBottom(std::string text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
+		void printLeftBottom(const std::string& text, float x = 5, float y = 5, float scale = 20.0f, glm::vec4 color = glm::vec4(1), bool background = true);
 		/**
 		 * change the background color with an rgba color type 
 		 * \param color
@@ -141,8 +141,8 @@ namespace nico {
 		unsigned int windowsHeight;
 
 		//calculate width and height of the futur text rendering
-		void fillWidthAndHeight(std::string* text, float scale);
-		void renderText(std::string text, float x = 5, float y = 5, float scale = 1.0f, glm::vec4 color = glm::vec4(1), bool background = true);
+		void fillWidthAndHeight(const std::string* text, float scale);
+		void renderText(const std::string& text, float x = 5, float y = 5, float scale = 1.0f, glm::vec4 color = glm::vec4(1), bool background = true);
 	};
 }
 

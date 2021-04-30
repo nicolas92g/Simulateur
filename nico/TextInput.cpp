@@ -34,6 +34,7 @@ void nico::TextInput::draw(Shader* shader)
 
 		float mouse = win->getCursorX() - textPosition.x;
 		float advance = 0;
+
 		for (size_t i = 0; i < text.size(); i++)
 		{
 			if (mouse < advance) {
@@ -43,6 +44,10 @@ void nico::TextInput::draw(Shader* shader)
 			advance += textObject->Text.getAdvance(text[i], scale.y);
 		}
 	}
+
+	if (std::max(cursorIndex, 0) >= text.size())
+		cursorIndex = text.size() - 1;
+
 	//unselect button
 	if (!isHover() and win->Mouse(GLFW_MOUSE_BUTTON_LEFT)) {
 		selected = false;
@@ -58,6 +63,7 @@ void nico::TextInput::draw(Shader* shader)
 		if (left->isDown()) {
 			left1();
 		}
+
 		if(back->isDown()){
 			if (cursorIndex > -1) {
 				std::string::const_iterator it = text.begin() + cursorIndex;
@@ -66,7 +72,7 @@ void nico::TextInput::draw(Shader* shader)
 			}	
 		}
 		char C = win->getChar();
-		if (!(limited and ((double)calculateAdvance(0, lastLetterIndex) + (double)textObject->Text.getAdvance(C, scale.y) >= scale.x * SURFACE_WRITABLE)) and C) {
+		if (!(limited and ((double)calculateAdvance(0, text.size() - 1) + (double)textObject->Text.getAdvance(C, scale.y) >= scale.x * SURFACE_WRITABLE)) and C) {
 			bool authorization = false;
 			if (lettersAuthorized != "") {
 				for (size_t i = 0; i < lettersAuthorized.length(); i++)
@@ -80,9 +86,11 @@ void nico::TextInput::draw(Shader* shader)
 			else{ authorization = true; }
 
 			if (authorization) {
+				
 				std::string::const_iterator it = text.begin() + (size_t(cursorIndex) + 1);
 				text.insert(it, C);
 				right1();
+				
 			}
 		}
 		
@@ -101,10 +109,10 @@ void nico::TextInput::draw(Shader* shader)
 		//cursor
 		if (cursorIndex < 0)
 			textObject->cursor.setPosition(initialPos);
-		else if (!cursorIndex)
-			textObject->cursor.setPosition(initialPos + glm::vec2(calculateAdvance(firstLetterIndex, firstLetterIndex), .0f));
+		if (cursorIndex == 0)
+			textObject->cursor.setPosition(initialPos + glm::vec2(calculateAdvance(0, 0), .0f));
 		else
-			textObject->cursor.setPosition(initialPos + glm::vec2(calculateAdvance(firstLetterIndex, cursorIndex), .0f));
+			textObject->cursor.setPosition(initialPos + glm::vec2(calculateAdvance(0, cursorIndex), .0f));
 
 		textObject->cursor.setTransparency(transparency);
 		textObject->cursor.setMultiplyColor(glm::vec3(1) - mixedColor);
@@ -115,7 +123,7 @@ void nico::TextInput::draw(Shader* shader)
 			time = 0;
 		}
 		else {
-			time += (glfwGetTime() / 1000.0);
+			time += (glfwGetTime() * 1e-3);
 		}
 			
 		if(cursorDisplay)
@@ -127,15 +135,22 @@ void nico::TextInput::draw(Shader* shader)
 
 		object->draw(shader);
 	}
+
 	//text draw :
 	textObject->Text.updateDisplay(win);
-	textObject->Text.print(text.substr(firstLetterIndex, size_t(lastLetterIndex) + 1), initialPos.x, initialPos.y - scale.y * .25, scale.y * .8, glm::vec4(0,0,0, this->transparency), false);
+
+	textObject->Text.print(
+		text.substr(0, text.size()), 
+		initialPos.x, 
+		initialPos.y - scale.y * .25, 
+		scale.y * .8, 
+		glm::vec4(0, 0, 0, this->transparency), 
+		false);
 }
 
 void nico::TextInput::setText(std::string newText)
 {
 	text = newText;
-	cursorIndex = 0;
 }
 
 void nico::TextInput::setFilterLetters(std::string chars)
@@ -183,8 +198,6 @@ void nico::TextInput::constructor()
 
 	cursorIndex = -1;
 	cursorDisplay = true;
-	firstLetterIndex = 0;
-	lastLetterIndex = -1;
 	lettersAuthorized = "";
 	text = "";
 }
@@ -194,9 +207,6 @@ void nico::TextInput::left1()
 	if (cursorIndex <= -1)
 		return;
 	
-	if (cursorIndex == firstLetterIndex and firstLetterIndex > 0) {
-		firstLetterIndex--;
-	}
 	cursorIndex--;
 }
 
@@ -204,9 +214,6 @@ void nico::TextInput::right1()
 {
 	if (cursorIndex >= (int)text.size() - 1)
 		return;
-
-	if (cursorIndex > lastLetterIndex)
-		firstLetterIndex++;
 
 	cursorIndex++;
 }
@@ -225,14 +232,4 @@ float nico::TextInput::calculateAdvance(int beginI, int lastI)
 
 void nico::TextInput::updateTextToRender()
 {
-	while ((calculateAdvance(firstLetterIndex, lastLetterIndex) < scale.x * SURFACE_WRITABLE) and (lastLetterIndex < text.size())) {
-		lastLetterIndex++;
-	}
-
-	if (lastLetterIndex >= text.size())
-		lastLetterIndex = text.size() - 1;
-
-	while ((calculateAdvance(firstLetterIndex, lastLetterIndex) > scale.x * SURFACE_WRITABLE) and lastLetterIndex > firstLetterIndex) {
-		lastLetterIndex--;
-	}
 }

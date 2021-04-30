@@ -1,0 +1,16 @@
+# Blender MTL File: 'soupape.blend'
+# Material Count: 1
+
+newmtl soupape
+Ns 185.950400
+Ka 0.045455 0.045455 0.045455
+Kd 1.000000 0.928866 0.959983
+Ks 1.000000 1.000000 1.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump normal.png
+map_Kd color.png
+map_Ns roughness.png
+refl metallic.png

@@ -125,8 +125,8 @@ void main(){
     pbr.roughness = 1;//texture(roughness, uv).r;
     pbr.normal = calcNormal(normalMap, GROUND_SIZE);
 
-    sand.metallic = 0.2;
-    sand.roughness = 0.6;
+    sand.metallic = 0.1;
+    sand.roughness = 0.4;
     sand.normal = pbr.normal;
     sand.baseColor = vec3(0.8, 0.8, 0.1);
 
@@ -141,7 +141,7 @@ void main(){
     snow.baseColor = vec3(1);
 
     grass.metallic = 0;
-    grass.roughness = 0.7;
+    grass.roughness = 0.3;
     grass.normal = pbr.normal;
     grass.baseColor = vec3(0.0, 0.3, 0.0);
 
@@ -149,13 +149,6 @@ void main(){
 
     pbr.ao = 1;
 
-    float dst = distance(vec3(viewPos.x, 0, viewPos.z), fragPos);
-    
-    if(dst > FOG_DISTANCE){
-        pbr.alpha -= (dst - FOG_DISTANCE) * 0.002;
-    }
-
-    
    
     
 
@@ -207,6 +200,11 @@ void main(){
     vec3 color = (ambient * ambientStrength) + Lo;
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
+
+    float dst = distance(vec3(viewPos.x, 0, viewPos.z), fragPos);
+        if(dst > FOG_DISTANCE){
+        pbr.alpha -= (dst - FOG_DISTANCE) * 0.002;
+    }
    
     FragColor = vec4(color, pbr.alpha);
 
@@ -227,12 +225,12 @@ void calcColor(vec3 N){
         normal = normalize(TBN * normal);
         
     
-        pbr.roughness = 0.005;
+        pbr.roughness = 0.05;
         pbr.metallic = 1;
         pbr.normal = normal;
         pbr.alpha = 0.5;
 
-        //pbr.alpha = mix(pbr.alpha, 1, distance(fragPos, viewPos) * 0.02);
+        pbr.alpha = min(mix(pbr.alpha, 1, distance(fragPos, viewPos) * 0.02), 1);
         
         pbr.baseColor = vec3(0.1, 0.4, 0.9);
         return;
@@ -246,18 +244,18 @@ void calcColor(vec3 N){
 
 
     float offset = cos((fragPos.x + (fragPos.z)) * 0.005 - round((fragPos.x + fragPos.z) * 0.01));
-    offset = abs(cos(offset * 15) + 0.7) * 1;
+    offset = abs(cos(offset * 15) + 0.7) * 3;
 
     
 
     if(fragPos.y < 20 + seaLevel + offset && fragPos.y > seaLevel + offset){
-        pbr = mixM(sand, pbr, (fragPos.y - seaLevel + offset) * 0.05);
+        pbr = mixM(sand, pbr, (fragPos.y - seaLevel + offset) * 0.045);
     }
     if(fragPos.y < seaLevel + offset){
         pbr = mixM(rock, sand, max(fragPos.y, 0));
     }
 
-    offset = offset * -10 ;
+    offset = offset * -3.3 ;
 
     if(fragPos.y > GRASS_MAX + offset){
         pbr = mixM(pbr, rock, (fragPos.y - GRASS_MAX - offset) / GRASS_TRANSITION );
@@ -276,9 +274,9 @@ void calcColor(vec3 N){
         pbr = snow;
     }
     float dst = distance(viewPos, fragPos);
-    if(dst < 1000){
+    if(dst < 500){
         if (angle < 0.3 && fragPos.y > ROCK_MAX + offset){
-            pbr = mixM(pbr, rock, 1 - angle - max((dst - 800), 0) * 0.01);
+            pbr = mixM(pbr, rock, 1 - angle - max((dst - 400), 0) * 0.01);
         }
     }
     

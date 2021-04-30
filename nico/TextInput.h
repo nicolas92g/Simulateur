@@ -79,8 +79,6 @@ namespace nico{
 		void updateTextToRender();
 
 		int cursorIndex;
-		int firstLetterIndex;
-		int lastLetterIndex;
 		std::string text;
 		glm::vec2 textPosition;
 		std::string lettersAuthorized;

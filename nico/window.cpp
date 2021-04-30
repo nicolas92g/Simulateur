@@ -1,23 +1,12 @@
 #include "window.h"
 
-nico::Window::Window()
-{
-	if (!glfwInit()) {
-		fprintf(stderr, "error glfw cant init\n");
-		exit(-1);
-	}
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	this->glfwWin = glfwCreateWindow(800, 600, "Vulkan", nullptr, nullptr);
-
-}
 
 nico::Window::Window(int openglMajorVersion, int openglMinorVersion, bool debugMode, int antialiasingLevel, const char* title, glm::vec2 widthAndHeight)
 {
 	deltaTime = 0;
 	time = 0;
 	fps = 0;
+	pauseIfUnfocused = true;
 
 	if (!glfwInit()) {
 		fprintf(stderr, "error glfw cant init\n");
@@ -41,7 +30,7 @@ nico::Window::Window(int openglMajorVersion, int openglMinorVersion, bool debugM
 	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
 
-	glfwWin = glfwCreateWindow(widthAndHeight.x, widthAndHeight.y, title, NULL, NULL);
+	glfwWin = glfwCreateWindow(widthAndHeight.x, widthAndHeight.y, title, nullptr, nullptr);
 	if (glfwWin == NULL) {
 		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible\n");
 		glfwTerminate();
@@ -114,7 +103,21 @@ void nico::Window::endFrame()
 	if (!(int(time * 10000) % 100)) {
 		fps = (double)(1.0 / deltaTime);
 	}
+	//pause if the window is not focused
+	if (this->pauseIfUnfocused) {
+		//get the time before the pause
+		double previousTime(glfwGetTime());
 
+		while (!glfwGetWindowAttrib(glfwWin, GLFW_FOCUSED))
+		{
+			glfwSwapBuffers(glfwWin);
+			glfwPollEvents();
+		}
+		//reset the glfw time function to the time it was before the pause
+		glfwSetTime(previousTime);
+	}
+
+	//end frame
 	glfwSwapBuffers(glfwWin);
 	glfwPollEvents();
 }
@@ -131,6 +134,20 @@ void nico::Window::hideCursor(bool hide)
 	}
 	else {
 		glfwSetInputMode(glfwWin, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+}
+
+void nico::Window::setFullscreen(bool mode)
+{
+	if (mode) {
+		GLFWmonitor* p = glfwGetPrimaryMonitor();
+		int width = 0, height = 0, x = 0, y = 0;
+		glfwGetMonitorWorkarea(p, &x, &y, &width, &height);
+
+		glfwSetWindowMonitor(glfwWin, p, x, y, width, height, GLFW_DONT_CARE);
+	}
+	else {
+		glfwSetWindowMonitor(glfwWin, nullptr, 100, 100, 800, 600, GLFW_DONT_CARE);
 	}
 }
 

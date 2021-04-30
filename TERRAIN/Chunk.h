@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <noise.h>
 #include <chrono>
-#include <SOURCE/deplacement.h>
+#include <SOURCE/Deplacement.h>
 
 #define CHUNK_SIZE 256
 #define MAX_RESOLUTION 10 //(8^2 = 256)
@@ -29,6 +29,7 @@ public:
 	bool isReloadingRes() const;
 	std::vector<sphere>* getHitbox();
 	void CalculateHitbox();
+	void checkBadGeneration();
 
 
 	static nico::KeySwitch* lines;
@@ -49,14 +50,15 @@ protected:
 	static glm::vec3 calculateNormalVector(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 	static void calculateTangents(nico::Vertex* point);
 	static void calculateTangentsAndBi(nico::Vertex* point);
+	static double heightFunction(double X, double Y);
 
 	
 
 	//chunk
 	glm::ivec2 chunkGridPos;
-	std::unordered_map<short, std::unordered_map<short, double>> heights;
-	noise::module::Perlin noise;
-	noise::module::RidgedMulti ridged;
+	std::unordered_map<int, std::unordered_map<int, double>> heights;
+	static noise::module::Perlin noise;
+	static noise::module::RidgedMulti ridged;
 
 	uint32_t resolution;//stock the current resolution of the chunk
 	uint8_t ResPowerTwo;// 2**(this var) == resolution

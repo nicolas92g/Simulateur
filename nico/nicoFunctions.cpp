@@ -142,6 +142,35 @@ std::string nico::strings::vec2Tostring(glm::vec2 var) {
 	return  "(" + std::to_string(var.x) + ", " + std::to_string(var.y) + ")";
 }
 /**
+ * @brief make a string of glm::ivec4.
+ *
+ * \param var
+ * \return (x,y,z,w)
+ */
+std::string nico::strings::ivec4Tostring(glm::ivec4 var) {
+	return  "(" + std::to_string(var.x) + ", " + std::to_string(var.y) + ", " + std::to_string(var.z) + ", " + std::to_string(var.w) + ")";
+}
+
+/**
+ * @brief make a string of a glm::ivec3.
+ *
+ * \param var
+ * \return (x,y,z)
+ */
+std::string nico::strings::ivec3Tostring(glm::ivec3 var) {
+	return  "(" + std::to_string(var.x) + ", " + std::to_string(var.y) + ", " + std::to_string(var.z) + ")";
+}
+
+/**
+ * @brief make a string of a glm::vec2.
+ *
+ * \param var
+ * \return (x,y)
+ */
+std::string nico::strings::ivec2Tostring(glm::ivec2 var) {
+	return  "(" + std::to_string(var.x) + ", " + std::to_string(var.y) + ")";
+}
+/**
  * @brief check if a real is in [0,1].
  * 
  * \param nbr

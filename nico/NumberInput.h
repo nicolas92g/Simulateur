@@ -1,5 +1,6 @@
 #pragma once
 #include "TextInput.h"
+#include <float.h>
 
 namespace nico{
 	/**
@@ -16,6 +17,18 @@ namespace nico{
 		 * \param scale
 		 */
 		NumberInput(Window* win, glm::vec2 position = { 10, 10 }, glm::vec2 scale = { 250, 40 });
+		/**
+		 * @brief allow to use the = operator
+		 */
+		void operator=(const double newValue);
+		/**
+		 * @brief allow to use < operator
+		 */
+		bool operator<(const double value);
+		/**
+		 * @brief allow to use > operator
+		 */
+		bool operator>(const double value);
 		/**
 		 * @brief get the real value from the input
 		 * \return 
@@ -36,7 +49,19 @@ namespace nico{
 		 * \param step
 		 */
 		void setStep(double step);
-
+		/**
+		 * @brief set the maximun and minimun value of the numberInput
+		 */
+		void setLimits(double min, double max);
+		/**
+		 * @brief return the minimun value
+		 */
+		const double getMin() const;
+		/**
+		 * @brief return the maximun value
+		 */
+		const double getMax() const;
+ 
 		/**
 		 * @brief draw and update the input
 		 * \param shader
@@ -52,7 +77,11 @@ namespace nico{
 		uint32_t timeStayedClick;//count how many times user stay left click on the button
 		double step;//step to add with the mouse
 
+		double minValue;
+		double maxValue;
+
 		void update();
+		double getDisplayedValue() const;
 
 	private:
 		using TextInput::setFilterLetters;
