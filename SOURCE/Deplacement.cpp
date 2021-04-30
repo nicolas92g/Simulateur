@@ -41,7 +41,8 @@ bool deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes, 
 	return false;
 }
 
-float distance(vec3* a, vec3* b) {
+//permet de savoir la distance entre 2 point sans faire de copies des ces points (sizeof(vec3) = 12 | sizeof(vec3*) = 8)
+float distancePtr(const vec3* a, const vec3* b){
 	static float x, y, z;
 	 x = a->x - b->x;
 	 y = a->y - b->y;
@@ -49,10 +50,12 @@ float distance(vec3* a, vec3* b) {
 	return sqrt(x * x + y * y + z * z);
 }
 
-bool collision(sphere* a, sphere* b) {
-	return distance(&a->centre, &b->centre) <= a->rayon + b->rayon;
+//detecte la colision entre 2 spheres
+bool collision(const sphere* a, const sphere* b) {
+	return distancePtr(&a->centre, &b->centre) <= a->rayon + b->rayon;
 }
 
+//permet d'afficher une sphere 
 void afficheHitbox(sphere* hitbox, Shader* shader){
 	static Model sphereModel(NICO_PATH"MODELISATION/hitboxSphere/hitbox.obj");
 	static Object3d sphere(&sphereModel);
@@ -62,16 +65,18 @@ void afficheHitbox(sphere* hitbox, Shader* shader){
 	sphere.update(); sphere.draw(shader);
 }
 
+//permet d'afficher une hitbox 
 void afficheHitbox(std::vector<sphere>* hitbox, Shader* shader, glm::vec3* pos, float Rdistance) {
 	for (size_t i = 0; i < hitbox->size(); i++) {
-		if(distance(pos, &hitbox->operator[](i).centre) < Rdistance)
+		if(distancePtr(pos, &hitbox->operator[](i).centre) < Rdistance)
 			afficheHitbox(&hitbox->operator[](i), shader);
 	}
 }
 
 std::vector<sphere> sphere::affichage;
 
-bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b)
+//permet de detecter une collision entre 2 "hitbox" (des tableaux de spheres quoi)
+bool testDeCollision(const std::vector<sphere>* a, const std::vector<sphere>* b)
 {
 	for (size_t i = 0; i < a->size(); i++)
 	{
@@ -84,6 +89,7 @@ bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b)
 	return false;
 }
 
+//permet d'eviter le plus possible le Z-fighting tout en essayant de garder une distance d'affichage max élevé
 void parametrageDeLaCamera(nico::Camera* cam)
 {
 	if (cam->getPosition().y > 1000) {
@@ -101,3 +107,42 @@ void parametrageDeLaCamera(nico::Camera* cam)
 	}
 	Controls::zoomMax = 20.0f;
 }
+
+vec3 soupapeAnimation(nico::Window* win)
+{
+	static float hauteurSoupape = 0;
+	static constexpr float maxH = 0;
+	static constexpr float minH = -0.1;
+	static constexpr float speed = .5;
+
+	if (win->Key(GLFW_KEY_LEFT_CONTROL)) {
+		hauteurSoupape -=  speed * win->getDeltaTime();
+	}
+	else { 
+		hauteurSoupape += speed * win->getDeltaTime();
+	}
+
+	hauteurSoupape = std::max(minH, std::min(maxH, hauteurSoupape));
+	return vec3(0, hauteurSoupape, 0);
+}
+
+void animationBruleur(nico::Window* win, nico::Light& light, const glm::vec3& mongolPos)
+{
+	static float intensity = 0;
+	static constexpr float minI = 0, maxI = 50;
+	if (win->Key(GLFW_KEY_SPACE)) {
+		intensity += win->getDeltaTime() * 200;
+	}
+	else {
+		intensity -= win->getDeltaTime() * 200;
+	}
+	
+	intensity = std::max(minI, std::min(maxI, intensity));
+	
+	light.setColor(vec3(2, 0.7, 0.4) * intensity);
+	static constexpr float A = .02f;
+	light.setPos(mongolPos - vec3((rand() % 10) * A, 1.5f + (rand() % 10) * A, (rand() % 10) * A));
+}
+
+
+

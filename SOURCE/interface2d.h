@@ -22,14 +22,14 @@ private:
 	static std::shared_ptr<nico::Texture> image;
 };
 
-class GameOverInterface : public nico::Object2d {
+class Interface2d : public nico::Object2d {
 public:
-	GameOverInterface(nico::Window* win, nico::TextRenderer* text);
+	Interface2d(nico::Window* win, nico::TextRenderer* text);
 	void draw(nico::Shader* shader);
 
 	enum class State
 	{
-		waiting, playing, recommencer, reprendre
+		gameOver, playing, recommencer, recommencerAuMemeEndroit, pause, reprendre 
 	};
 
 	void setState(State state);
@@ -43,8 +43,10 @@ private:
 	nico::TextRenderer* text;
 
 	nico::Button recommencer;
-	nico::Button reprendre;
+	nico::Button reprendrePlusHaut;
 	nico::Button quitter;
+
+	nico::Button reprendre;
 
 	State state;
 

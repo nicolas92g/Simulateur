@@ -9,6 +9,8 @@ float Chunk::seaLevel = 1.0f;
 using namespace nico;
 using namespace glm;
 
+noise::module::Perlin Chunk::noise;
+noise::module::RidgedMulti Chunk::ridged;
 
 Chunk::Chunk(ivec2 pos, uint32_t res)
 {
@@ -130,31 +132,11 @@ void Chunk::CalculateHeights()
 			const double Y = (double(((int)j - 1) * resize) + yOffset);
 
 			//the array is filled in a way that we can add some heights between previous values
+			heights[x][y] = heightFunction(X, Y);
 
-			const float A = std::max(0.25, noise.GetValue(X * 0.0002, 0, Y * 0.0002)) * 1.2;
-
-			const float rare = (std::max(0.8, noise.GetValue(X * 0.00015, 0, Y * 0.00015)) * 5) - 3;
-
-			heights[x][y] = noise.GetValue(X * 0.0003, Y * 0.0003, 0) * 100 +
-				(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0 + 
-				 ridged.GetValue(X * 0.0003, Y * 0.0003, 4) * 170 * A * rare;
 			//check if the chunk contain some underwater vertices
 			if (heights[x][y] < seaLevel)
 				containWater = true;
-
-			heights[x][y] *= 1.5;
-
-			//avoid Z-fighting
-			if (heights[x][y] > seaLevel) {
-				if (heights[x][y] < ((double)seaLevel + offsetBetweenSeaAndLand)) {
-					heights[x][y] = ((double)seaLevel + offsetBetweenSeaAndLand);
-				}
-			}
-			else {
-				if (heights[x][y] > ((double)seaLevel - offsetBetweenSeaAndLand)) {
-					heights[x][y] = ((double)seaLevel - offsetBetweenSeaAndLand);
-				}
-			}
 		}
 	}
 }
@@ -232,6 +214,31 @@ void Chunk::calculateTangentsAndBi(nico::Vertex* point)
 
 	point->tangents = glm::normalize(point->tangents);
 	point->bitangents = glm::cross(point->tangents, point->normals);
+}
+
+double Chunk::heightFunction(double X, double Y)
+{
+	float A = std::max(0.25, noise.GetValue(X * 0.0002, 0, Y * 0.0002)) * 1.2;
+	A *= (std::max(0.8, noise.GetValue(X * 0.00015, 0, Y * 0.00015)) * 5) - 3;
+
+	double H = noise.GetValue(X * 0.0003, Y * 0.0003, 0) * 100 +
+		(noise.GetValue(X * 0.005, 0, Y * 0.005)) * 10.0 +
+		ridged.GetValue(X * 0.0003, Y * 0.0003, 4) * 170 * A;
+	H *= 1.5;
+
+	//avoid Z-fighting
+	if (H > seaLevel) {
+		if (H < ((double)seaLevel + offsetBetweenSeaAndLand)) {
+			H = ((double)seaLevel + offsetBetweenSeaAndLand);
+		}
+	}
+	else {
+		if (H > ((double)seaLevel - offsetBetweenSeaAndLand)) {
+			H = ((double)seaLevel - offsetBetweenSeaAndLand);
+		}
+	}
+
+	return H;
 }
 
 void Chunk::calculateTangents(nico::Vertex* point)
@@ -387,6 +394,28 @@ void Chunk::CalculateHitbox() {
 
 	for (uint32_t i = 0; i < vertices.size(); i++) {
 		hitbox[i] = { vertices[i].positions - rayon * 0.9f, rayon };
+	}
+}
+
+void Chunk::checkBadGeneration()
+{
+	const uint32_t offset = 1;// pow(2, MAX_RESOLUTION - ResPowerTwo);
+	const double resize = 1.0 / ((double)resolution / (double)CHUNK_SIZE);
+	const double xOffset = (double)chunkGridPos.x * (double)CHUNK_SIZE;
+	const double yOffset = (double)chunkGridPos.y * (double)CHUNK_SIZE;
+
+	for (uint32_t i = 0; i < NUMBER_OF_HEIGHTS - 4; i += 4)
+	{
+		for (uint32_t j = 0; j < NUMBER_OF_HEIGHTS - 4; j += 4)
+		{
+			const uint32_t x = i * offset;
+			const uint32_t y = j * offset;
+			const double X = (double(((int)i - 1) * resize) + xOffset);
+			const double Y = (double(((int)j - 1) * resize) + yOffset);
+
+			if (heights[x][y] != heightFunction(X, Y))
+				this->setResolution(ResPowerTwo);
+		}
 	}
 }
 

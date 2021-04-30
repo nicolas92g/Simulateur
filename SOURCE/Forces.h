@@ -16,6 +16,7 @@
 #define AMPLITUDE_DU_VENT 5.0f
 #define TEMPERATURE_PERDUE_PAR_MILLISEC 0.002f
 #define VITESSE_DE_CHAUFFAGE 0.01
+#define VITESSE_DE_DECHAUFFAGE 1
 
 glm::vec3 pousseeDArchimede(double masseAVide, double volume, double temperature, float z);
 double masseVolumiqueAir(double temperature, float z);

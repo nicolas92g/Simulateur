@@ -10,19 +10,19 @@ glm::vec3 pousseeDArchimede(double masseAVide, double volume, double temperature
 	if (masse == 0)
 		masse = 0.001;
 
-	return vec3(0,force/masse,0);
+	return vec3(0, force / masse, 0);
 }
 
 glm::vec3 ControleGodVent(nico::Window* win, nico::Camera* cam) {
 	const float speed = 4.5f;
 	glm::vec3 ret = vec3(0);
-	if (win->Key(GLFW_KEY_I))
+	if (win->Key(GLFW_KEY_W))
 		ret += glm::normalize(cam->getLook() * vec3(1, 0, 1)) * speed ;
-	if (win->Key(GLFW_KEY_K))
+	if (win->Key(GLFW_KEY_S))
 		ret += glm::normalize(cam->getLook() * vec3(1, 0, 1)) * -speed ;
-	if (win->Key(GLFW_KEY_J))
+	if (win->Key(GLFW_KEY_A))
 		ret += cam->getRightDirection() * -speed;
-	if (win->Key(GLFW_KEY_L))
+	if (win->Key(GLFW_KEY_D))
 		ret += cam->getRightDirection() * speed;
 	return ret;
 }
@@ -38,7 +38,7 @@ glm::vec3 ForceDuVent(float altitude, double temps, float multiTemps) {
 
 	vec3 direction = vec3(cos(angle), 0, sin(angle));
 	noise.SetSeed(seedAmplitude);
-	direction *= noise.GetValue(temps * ACTION_DU_TEMPS * multiTemps, altitude * ACTION_DU_ALTITUDE, 1);
+	direction *= noise.GetValue(temps * ACTION_DU_TEMPS * multiTemps, altitude * ACTION_DU_ALTITUDE, 1) + 0.2;
 	return direction * AMPLITUDE_DU_VENT;
 }
 
@@ -54,15 +54,21 @@ double masseVolumiqueAir(double temperature, float z) {
 }
 
 double pressionAir(float z) {
-
 	return PRESSION * std::pow(1 - 2.25577e-5 * z, 5.255);
 }
 
 
 float ControleTemperature(nico::Window* win, float temperature, float multiTemps) {
-	float temp = temperature - (temperature - TEMPERATURE_AMBIANTE) * win->getDeltaTime() * TEMPERATURE_PERDUE_PAR_MILLISEC * multiTemps;
+	float temp = temperature - (temperature - TEMPERATURE_AMBIANTE) * (float)win->getDeltaTime() * TEMPERATURE_PERDUE_PAR_MILLISEC * multiTemps;
+	
 	if (win->Key(GLFW_KEY_SPACE)) {
-		temp += (TEMPERATURE_MAX - temp) * win->getDeltaTime() * VITESSE_DE_CHAUFFAGE * multiTemps;
+		temp += (TEMPERATURE_MAX - temp) * (float)win->getDeltaTime() * VITESSE_DE_CHAUFFAGE * multiTemps;
 	}
+	if (win->Key(GLFW_KEY_LEFT_CONTROL)) {
+		temp -=  VITESSE_DE_DECHAUFFAGE * (float)win->getDeltaTime() * multiTemps;
+	}
+
+	if (temp < TEMPERATURE_AMBIANTE) temp = TEMPERATURE_AMBIANTE;
+
 	return temp;
 }

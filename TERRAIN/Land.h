@@ -21,6 +21,7 @@ public:
 
 	void setSeaLevel(float seaLevel);
 	float getSeaLevel() const;
+	void checkBadGeneration();
 
 	std::vector<Chunk*> getNearestChunks(glm::vec3 pos);
 	std::vector<sphere>* getHitbox(glm::vec3 pos);

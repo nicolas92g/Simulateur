@@ -13,6 +13,21 @@ nico::NumberInput::NumberInput(Window* win, glm::vec2 position, glm::vec2 scale)
 	minValue = DBL_MIN;
 }
 
+void nico::NumberInput::operator=(const double newValue)
+{
+	setValue(newValue);
+}
+
+bool nico::NumberInput::operator<(const double value)
+{
+	return getValue() < value;
+}
+
+bool nico::NumberInput::operator>(const double value)
+{
+	return getValue() > value;
+}
+
 const double nico::NumberInput::getValue() const
 {
 	return std::max(minValue, std::min(maxValue, getDisplayedValue()));

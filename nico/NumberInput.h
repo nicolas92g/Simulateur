@@ -18,6 +18,18 @@ namespace nico{
 		 */
 		NumberInput(Window* win, glm::vec2 position = { 10, 10 }, glm::vec2 scale = { 250, 40 });
 		/**
+		 * @brief allow to use the = operator
+		 */
+		void operator=(const double newValue);
+		/**
+		 * @brief allow to use < operator
+		 */
+		bool operator<(const double value);
+		/**
+		 * @brief allow to use > operator
+		 */
+		bool operator>(const double value);
+		/**
 		 * @brief get the real value from the input
 		 * \return 
 		 */

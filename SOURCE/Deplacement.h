@@ -47,10 +47,12 @@ struct Physique {
 //toutes les fonctions qui implemente le deplacement du joueur
 
 bool deplacement(Physique*, nico::Window*, std::vector<sphere>* hitboxes, float multiTemps);
-float distance(glm::vec3* a, glm::vec3* b);
-bool collision(sphere* a, sphere* b);
-bool testDeCollision(std::vector<sphere>* a, std::vector<sphere>* b);
+float distancePtr(const glm::vec3* a, const glm::vec3* b);
+bool collision(const sphere* a, const sphere* b);
+bool testDeCollision(const std::vector<sphere>* a, const std::vector<sphere>* b);
 void parametrageDeLaCamera(nico::Camera* cam);
+vec3 soupapeAnimation(nico::Window* win);
+void animationBruleur(nico::Window* win, nico::Light& light, const glm::vec3& mongolPos);
 
 //outils de devellopement
 void afficheHitbox(sphere* hitbox, nico::Shader* shader);
