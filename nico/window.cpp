@@ -148,6 +148,8 @@ void nico::Window::setFullscreen(bool mode)
 	}
 	else {
 		glfwSetWindowMonitor(glfwWin, nullptr, 100, 100, 800, 600, GLFW_DONT_CARE);
+		glfwRestoreWindow(glfwWin);
+		maximise();
 	}
 }
 

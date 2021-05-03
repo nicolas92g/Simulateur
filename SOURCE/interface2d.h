@@ -1,4 +1,5 @@
 #include <nico.hpp>
+#include <float.h>
 
 class Boussole : public nico::Object2d{
 public:
@@ -29,24 +30,51 @@ public:
 
 	enum class State
 	{
-		gameOver, playing, recommencer, recommencerAuMemeEndroit, pause, reprendre 
+		gameOver, playing, recommencer, recommencerAuMemeEndroit, pause, reprendre, help
 	};
 
 	void setState(State state);
 	State getState() const;
+	void setThermometer(const float temperature);
+	void setVariometer(const float accelerationVerticale);
+	void setAltimeter(const float altitude);
+	void increaseTimeAcceleration();
+	void decreaseTimeAcceleration();
 
+	const float getTimeAcceleration() const;
 
 
 private:
+	float temperature;
+	float accelerationVerticale;
+	float altitude;
+	float timeAcceleration;
+
+	nico::Texture thermometerTexture;
+	nico::Object2d thermometre;
+
+	nico::Texture variometerTexture;
+	nico::Object2d variometre;
+
+	nico::Texture altimeterTexture;
+	nico::Object2d altimeter;
+
 	nico::Texture background;
 	nico::Window* win;
 	nico::TextRenderer* text;
+	nico::TextRenderer sevenSegment;
 
 	nico::Button recommencer;
 	nico::Button reprendrePlusHaut;
 	nico::Button quitter;
 
 	nico::Button reprendre;
+	nico::Button retour;
+
+	nico::Button help;
+	nico::Texture helpTexture;
+	nico::Texture helpHoverTexture;
+	nico::Texture helpClickedTexture;
 
 	State state;
 

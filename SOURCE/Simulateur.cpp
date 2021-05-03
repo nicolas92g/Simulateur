@@ -18,7 +18,7 @@ using namespace glm;
 int main() {
 	//initialisation de l'afficheur 3D
 	Renderer render;
-
+	render.Window()->setIcon(NICO_TEXTURES_PATH"montgol.png");
 	//creer un afficheur de texte avec la police par default
 	TextRenderer text;
 
@@ -33,21 +33,14 @@ int main() {
 
 	//creer un switch (on/off) pour le mode pleine ecran
 	KeySwitch fullscreen(render.Window(), GLFW_KEY_F11);
+	KeySwitch menuInfo(render.Window(), GLFW_KEY_F3);
+	KeySwitch godMode(render.Window(), GLFW_KEY_F6);
 
 	float masse(200.0f);
 	float volume(1400.0f);
 
-	NumberInput temperature(render.Window());
-	render2d.addElement(&temperature);
-	temperature.setPosition(vec2(200, 100));
-	temperature.setValue(DEFAULT_TEMPERATURE);
-
-	NumberInput temps(render.Window());
-	render2d.addElement(&temps);
-	temps.setPosition(vec2(200, 200));
-	temps.setValue(1.0);
-	temps.setStep(0.001);
-	temps.setLimits(0, 20.0);
+	float temperature = DEFAULT_TEMPERATURE;
+	float temps(1);
 
 	Boussole::createTexture();
 	Boussole sunBoussole(render.Window(), &player, &text);
@@ -55,13 +48,32 @@ int main() {
 	sunBoussole.setMultiplyColor(vec3(1,1,0));
 	render2d.addElement(&sunBoussole);
 
+	Boussole nord(render.Window(), &player, &text);
+	nord.setName("N");
+	render2d.addElement(&nord);
+	Boussole sud(render.Window(), &player, &text);
+	sud.setName("S");
+	render2d.addElement(&sud);
+	Boussole ouest(render.Window(), &player, &text);
+	ouest.setName("W");
+	render2d.addElement(&ouest);
+	Boussole est(render.Window(), &player, &text);
+	est.setName("E");
+	render2d.addElement(&est);
+
+
+	nord.setDirection(vec3(1, 0, 0));
+	sud.setDirection(vec3(-1, 0, 0));
+	ouest.setDirection(vec3(0, 0, -1));
+	est.setDirection(vec3(0, 0,  1));
+
 	Boussole vent(render.Window(), &player, &text);
 	vent.setName("direction du vent");
 	render2d.addElement(&vent);
 
 	//GameOver and pause Interface
-	Interface2d interface(render.Window(), &text);
-	render2d.addElement(&interface);
+	Interface2d interface2d(render.Window(), &text);
+	render2d.addElement(&interface2d);
 	bool gameOver = false;
 	
 
@@ -127,12 +139,18 @@ int main() {
 		text.updateDisplay(render.Window());
 
 		//gestion de la temperature
-		temperature.setValue(ControleTemperature(render.Window(),temperature.getValue(), temps.getValue()));
+		temperature = ControleTemperature(render.Window(),temperature, temps);
+		interface2d.setThermometer(temperature);
+		interface2d.setVariometer(((float)((int)((montgolPhysique.forces.archi.y + montgolPhysique.forces.g.y) * 100)) * 0.01f));
+		interface2d.setAltimeter(montgolPhysique.pos.y);
 
 		//creation des forces qui s'appliquent sur la montgolfiere
-		montgolPhysique.forces.archi = pousseeDArchimede(masse, volume, temperature.getValue(), montgolPhysique.pos.y);
-		montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime(), temps.getValue()) + ControleGodVent(render.Window(), &player);
+		montgolPhysique.forces.archi = pousseeDArchimede(masse, volume, temperature, montgolPhysique.pos.y);
+		montgolPhysique.forces.vent = ForceDuVent(montgolPhysique.pos.y, glfwGetTime(), temps);
 		montgolPhysique.forces.frottements = ForceDeFrottements(montgolPhysique.vit);
+
+		if(godMode)
+			montgolPhysique.forces.vent += ControleGodVent(render.Window(), &player);
 
 		//met a jour la boussole du vent
 		vent.setDirection(montgolPhysique.forces.vent);
@@ -140,57 +158,56 @@ int main() {
 		//fonction qui gere la physique de deplacement
 		
 		if (!gameOver) {
-			gameOver = deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos), temps.getValue());
+			gameOver = deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos), temps);
 
 			if (gameOver) {
-				interface.setState(Interface2d::State::gameOver);
+				interface2d.setState(Interface2d::State::gameOver);
 				render.Window()->hideCursor(false);
 			}
 		}
 		else {
-			if (interface.getState() == Interface2d::State::recommencerAuMemeEndroit) {
+			if (interface2d.getState() == Interface2d::State::recommencerAuMemeEndroit) {
 				gameOver = false;
 				montgolPhysique.pos.y = 50;
 				montgolPhysique.vit = vec3(0);
 				temps = 1;
-				interface.setState(Interface2d::State::playing);
+				interface2d.setState(Interface2d::State::playing);
 			}
 		}
-		if (interface.getState() == Interface2d::State::recommencer) {
+		if (interface2d.getState() == Interface2d::State::recommencer) {
 			gameOver = false;
 			montgolPhysique.pos = DEFAULT_POS;
 			montgolPhysique.vit = vec3(0);
-			temperature.setValue(DEFAULT_TEMPERATURE);
+			temperature = DEFAULT_TEMPERATURE;
 			temps = 1;
-			interface.setState(Interface2d::State::playing);
+			interface2d.setState(Interface2d::State::playing);
 
 			do {
 				terrain.update();
 			} while (terrain.getNumberOfLoadedChunks() < NOMBRE_DE_CHUNK_MIN);
 				
 		}
-		else if (interface.getState() == Interface2d::State::pause) {
+		else if (interface2d.getState() == Interface2d::State::pause) {
 			temps = 0;
 		}
-		else if (interface.getState() == Interface2d::State::reprendre) {
+		else if (interface2d.getState() == Interface2d::State::reprendre) {
 			temps = 1;
-			interface.setState(Interface2d::State::playing);
+			interface2d.setState(Interface2d::State::playing);
 			render.Window()->setCursorPos(render.Window()->getWidth() * .5, render.Window()->getHeight() * .5);
 		}
-		if (interface.getState() == Interface2d::State::playing) {
-			if(temps < 1.0)
-				temps = 1;
+		if (interface2d.getState() == Interface2d::State::playing) {
+			temps = interface2d.getTimeAcceleration();
 		}
 
 			
 			
 		//afficher la montgolfiere a la nouvelle position 
 		montgol.setPos(montgolPhysique.pos);
-		soupape.setPos(montgolPhysique.pos + soupapeAnimation(render.Window()));
+		soupape.setPos(montgolPhysique.pos + animationSoupape(render.Window()));
 		animationBruleur(render.Window(), bruleur, montgolPhysique.pos);
 
 		//met a jour la camera avec la souris
-		if (interface.getState() == Interface2d::State::playing)
+		if (interface2d.getState() == Interface2d::State::playing)
 			souris.update();
 		//player.classicKeyboardControls(render.Window(), 30);
 		//player.classicMouseControls(render.Window(), 0.003f);
@@ -217,15 +234,26 @@ int main() {
 		//affichage 2d
 		render2d.frame();
 
-		//text.printLeftTop(nico::strings::ivec3Tostring(montgolPhysique.pos) + " | acc : " + 
-		//	std::to_string((float)((int)((montgolPhysique.forces.archi.y + montgolPhysique.forces.g.y) * 100)) * 0.01f) + " | vit : "
-		//	+ std::to_string(glm::length(montgolPhysique.vit)));
+		if (menuInfo) {
+			text.printLeftTop("loc : " + nico::strings::ivec3Tostring(montgolPhysique.pos) +
+				" chunks : " + std::to_string(terrain.getNumberOfLoadedChunks()));
+		
+			std::string t = "fps : " + std::to_string(render.Window()->getFps());
+			glm::vec2 size = text.calculateTextRenderingSize(t, 20.0f);
+			text.printRightTop(t,  size.x + 5, size.y + 5, 20.0f);
+		}
+		
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 
-	while (Chunk::getNumberOfWorkingThreads());//attends que tous les programmes parallele soit terminé
+	//while (Chunk::getNumberOfWorkingThreads());//attends que tous les programmes parallele soit terminé
 
 	return 0;//exit
 }
 
 
+#ifdef NDEBUG
+int WinMain(){ 
+	return main(); 
+}
+#endif // NDEBUG
