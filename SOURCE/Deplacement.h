@@ -51,7 +51,7 @@ float distancePtr(const glm::vec3* a, const glm::vec3* b);
 bool collision(const sphere* a, const sphere* b);
 bool testDeCollision(const std::vector<sphere>* a, const std::vector<sphere>* b);
 void parametrageDeLaCamera(nico::Camera* cam);
-vec3 soupapeAnimation(nico::Window* win);
+vec3 animationSoupape(nico::Window* win);
 void animationBruleur(nico::Window* win, nico::Light& light, const glm::vec3& mongolPos);
 
 //outils de devellopement

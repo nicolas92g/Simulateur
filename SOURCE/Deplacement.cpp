@@ -35,7 +35,7 @@ bool deplacement(Physique* montgol, Window* win, std::vector<sphere>* hitboxes, 
 
 	//GameOver ?
 
-	if (montgol->pos.y < -1)
+	if (montgol->pos.y < 1)
 		return true;
 
 	return false;
@@ -108,11 +108,11 @@ void parametrageDeLaCamera(nico::Camera* cam)
 	Controls::zoomMax = 20.0f;
 }
 
-vec3 soupapeAnimation(nico::Window* win)
+vec3 animationSoupape(nico::Window* win)
 {
 	static float hauteurSoupape = 0;
 	static constexpr float maxH = 0;
-	static constexpr float minH = -0.1;
+	static constexpr float minH = -0.2;
 	static constexpr float speed = .5;
 
 	if (win->Key(GLFW_KEY_LEFT_CONTROL)) {

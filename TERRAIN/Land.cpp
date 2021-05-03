@@ -14,15 +14,22 @@ Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 	this->cam = cam;
 	Chunk::genWaterObject();
 
-	this->numberOfThreadMax = 4;
+	this->numberOfThreadMax = 2;
 
 	this->renderDistance = 14;
 	this->nearDistance = 2;
-	this->middleDistance = 4;
+	this->middleDistance = 5;
 
+	this->nearResolution = 8;
+	this->middleResolution = 7;
+	this->farResolution = 4;
+
+#ifndef NDEBUG
+	this->middleDistance = 4;
 	this->nearResolution = 7;
 	this->middleResolution = 6;
-	this->farResolution = 4;
+#endif // !NDEBUG
+
 
 	//initRefractionSystem();
 }
@@ -276,7 +283,10 @@ std::vector<sphere>* Land::getHitbox(glm::vec3 pos)
 
 	for (size_t i = 0; i < chunks.size(); i++)
 	{
-		hitboxes.insert(hitboxes.end(), chunks[i]->getHitbox()->begin(), chunks[i]->getHitbox()->end());
+		const std::vector<sphere>* h = chunks[i]->getHitbox();
+
+		if(h != nullptr)
+			hitboxes.insert(hitboxes.end(), h->begin(), h->end());
 	}
 
 	return &hitboxes;

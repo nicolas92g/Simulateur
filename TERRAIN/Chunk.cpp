@@ -109,7 +109,9 @@ bool Chunk::isReloadingRes() const
 
 std::vector<sphere>* Chunk::getHitbox()
 {
-	return &hitbox;
+	if(isCreated)
+		return &hitbox;
+	return nullptr;
 }
 
 void Chunk::CalculateHeights()
