@@ -1,5 +1,4 @@
 #include "interface2d.h"
-#define VERSION_DE_CLEMENT
 
 std::shared_ptr<nico::Texture> Boussole::image;
 
