@@ -1,4 +1,5 @@
 #include "interface2d.h"
+#define VERSION_DE_CLEMENT
 
 std::shared_ptr<nico::Texture> Boussole::image;
 
@@ -207,6 +208,10 @@ void Interface2d::draw(nico::Shader* shader)
 		quitter.draw(shader);
 		text->print("Quitter", x - text->calculateTextRenderingSize("Quitter", y * .075).x * .5, y * .4, y * .075, glm::vec4(0, 0, 0, 1), false);
 
+#		ifdef VERSION_DE_CLEMENT
+		text->print("connard et testeur legendaire : Clement Guillot", x - text->calculateTextRenderingSize("connard et testeur légendaire : Clement Guillot", y * .045).x * .5, y * .03, y * .045, glm::vec4(0.5, 0, 0, 1), false);
+#		endif
+
 		help.setPosition(glm::vec2(x * 0.8, y * 1.3));
 		help.setScale(glm::vec2(x * 0.05, x * 0.05));
 		help.draw(shader);
@@ -295,7 +300,7 @@ void Interface2d::setAltimeter(const float altitude)
 void Interface2d::increaseTimeAcceleration()
 {
 	timeAcceleration += 0.5f;
-	if (timeAcceleration > 5.0f) timeAcceleration = 5.0f;
+	if (timeAcceleration > 10.0f) timeAcceleration = 10.0f;
 }
 
 void Interface2d::decreaseTimeAcceleration()

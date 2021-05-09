@@ -5,7 +5,7 @@ using namespace glm;
 
 
 
-Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
+Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)//, trees(NICO_PATH"MODELISATION/tree/tree.obj")
 {
 	shader = new Shader(NICO_SHADERS_PATH"default.vert", NICO_PATH"TERRAIN/terrain.frag");
 	r->setShaderConstantsUniforms(this->shader);
@@ -14,7 +14,7 @@ Land::Land(Renderer* r, Camera* cam) : reload(r->Window(), GLFW_KEY_X)
 	this->cam = cam;
 	Chunk::genWaterObject();
 
-	this->numberOfThreadMax = 2;
+	this->numberOfThreadMax = 1;
 
 	this->renderDistance = 14;
 	this->nearDistance = 2;
@@ -46,6 +46,8 @@ Land::~Land()
 void Land::update()
 {
 	shader->set("seaLevel", Chunk::seaLevel);
+
+	bool needToReloadTrees = false;
 
 	//reload shaders
 	if (reload.isDown()) {
@@ -93,11 +95,12 @@ void Land::update()
 
 	//check the first chunk
 	if (!isLoaded(centralChunk)) {
-		land[centralChunk.x][centralChunk.y] = std::make_unique<Chunk>(centralChunk, nearResolution);
+		land[centralChunk.x][centralChunk.y] = std::make_unique<Chunk>(centralChunk, nearResolution, render);
 		return;
 	}
 	if (land[centralChunk.x][centralChunk.y]->getResolution() != nearResolution) {
 		land[centralChunk.x][centralChunk.y]->setResolution(nearResolution);
+		needToReloadTrees = true;
 		return;
 	}
 
@@ -145,18 +148,34 @@ void Land::update()
 			}
 
 			if (!isLoaded(chunkToLoad)) {
-				land[chunkToLoad.x][chunkToLoad.y] = std::make_shared<Chunk>(chunkToLoad, resolutionOfChunks);
-				return;
+				land[chunkToLoad.x][chunkToLoad.y] = std::make_shared<Chunk>(chunkToLoad, resolutionOfChunks, render);
+				break;
 			}
 
 			if (land[chunkToLoad.x][chunkToLoad.y]->getResolution() != resolutionOfChunks) {
 				land[chunkToLoad.x][chunkToLoad.y]->setResolution(resolutionOfChunks);
-				return;
+				if(resolutionOfChunks == nearResolution) needToReloadTrees = true;
+				break;
 			}
 		}
 	}
 	
-
+	//if (needToReloadTrees or true) {
+	//	std::vector<glm::mat4> treesMatrices;
+	//	treesMatrices.push_back(glm::translate(vec3(2555, 9, 5312)));
+	//
+	//	for (auto& X : land)
+	//	{
+	//		for (auto& chunk : X.second)
+	//		{
+	//			if (this->getChunkDistance(centralChunk, chunk.second->getPosition()) <= this->middleDistance) {
+	//				treesMatrices.insert(treesMatrices.end(), chunk.second->getTrees().begin(), chunk.second->getTrees().end());
+	//			}
+	//		}
+	//	}
+	//	trees.setModels(treesMatrices);
+	//	std::cout << "reload trees\n";
+	//}
 }
 
 bool Land::isLoaded(glm::ivec2 chunk)
@@ -381,6 +400,7 @@ void Land::drawLand(Shader* shader)
 			chunk.second->draw(shader);
 		}
 	}
+	//trees.draw(shader);
 
 	//glm::ivec2 p = convertPlayerPosToChunkPos(cam->getPosition());
 

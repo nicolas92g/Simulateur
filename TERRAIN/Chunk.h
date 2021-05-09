@@ -12,7 +12,7 @@
 class Chunk : public nico::DrawableObject
 {
 public:
-	Chunk(glm::ivec2 pos, uint32_t resolutionPowerOfTwo = 3);
+	Chunk(glm::ivec2 pos, uint32_t resolutionPowerOfTwo, nico::Renderer* render);
 	~Chunk();
 
 	glm::ivec2 getPosition() const;
@@ -28,6 +28,8 @@ public:
 	bool wasCreated() const;
 	bool isReloadingRes() const;
 	std::vector<sphere>* getHitbox();
+	//std::vector<glm::mat4>& getTrees();
+
 	void CalculateHitbox();
 	void checkBadGeneration();
 
@@ -41,11 +43,11 @@ public:
 	static float offsetBetweenSeaAndLand;
 
 protected:
-	void CalculateHeights();//~ < 100 ms for r = 7
-	void CalculateVertices();//~ > 100 ms for r = 7
-	void CalculateIndices();//2~3 ms for r = 7
+	void CalculateHeights();
+	void CalculateVertices();
+	void CalculateIndices();
 
-	void sendData();// t<10 ms 
+	void sendData();
 
 	static glm::vec3 calculateNormalVector(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
 	static void calculateTangents(nico::Vertex* point);
@@ -63,7 +65,10 @@ protected:
 	uint32_t resolution;//stock the current resolution of the chunk
 	uint8_t ResPowerTwo;// 2**(this var) == resolution
 	uint32_t maxPowerTwo;//stock the biggest resolution the chunk was(in the 2**this way)
+	nico::Renderer* render;
 	bool containWater;
+
+	//std::vector<glm::mat4> trees;
 
 	static nico::Texture* normal;//land normal map
 	static nico::Texture* waterBump;//water normal map

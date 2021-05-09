@@ -4,6 +4,7 @@ layout(location = 1) in vec3 aNormals;
 layout(location = 2) in vec2 aUv;
 layout(location = 3) in vec3 aTangents;
 layout(location = 4) in vec3 aBitangents;
+layout(location = 5) in mat4 aInstancedModels;
 
 out vec3 normals;
 out vec2 uv;
@@ -22,10 +23,19 @@ uniform mat4 view;
 uniform mat4 model;
 
 uniform vec4 clipPlane;
+uniform bool instanced;
 
 void main()
 {
-    vec4 worldTrans = model * vec4(aPos , 1.0);
+    mat4 modelMatrix;
+    if(instanced) {
+        modelMatrix = aInstancedModels;
+    }
+    else{
+        modelMatrix = model;
+    }
+
+    vec4 worldTrans = modelMatrix * vec4(aPos , 1.0);
     
     gl_Position = projection * view * worldTrans;
     gl_ClipDistance[0] = dot(worldTrans, clipPlane);
@@ -35,8 +45,8 @@ void main()
     fragPos = vec3(model * vec4(aPos, 1));
     lightFragPos = lightSpaceMatrix * vec4(fragPos, 1) ;
 
-    vec3 T = normalize(vec3(model * vec4(aTangents, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(aNormals, 0.0)));
+    vec3 T = normalize(vec3(modelMatrix * vec4(aTangents, 0.0)));
+    vec3 N = normalize(vec3(modelMatrix * vec4(aNormals, 0.0)));
     // re-orthogonalize T with respect to N
     T = normalize(T - dot(T, N) * N);
     // then retrieve perpendicular vector B with the cross product of T and N

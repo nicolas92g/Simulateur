@@ -30,7 +30,6 @@ namespace nico {
 		 * \param shader
 		 */
 		void draw(Shader* shader);
-
 	private:
 		std::vector<Mesh> meshes;
 		std::string directory;

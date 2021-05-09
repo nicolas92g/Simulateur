@@ -35,3 +35,4 @@
 #include "nico/TextInput.h"
 #include "nico/NumberInput.h"
 #include "nico/Billboard.h"
+#include "nico/InstancedModel.h"

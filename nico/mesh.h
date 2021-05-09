@@ -20,7 +20,7 @@ namespace nico {
 		 * \param inds
 		 * \param texts
 		 */
-		Mesh(std::vector<Vertex> verts, std::vector<uint32_t> inds, std::vector<Texture> texts);
+		Mesh(const std::vector<Vertex>& verts, const std::vector<uint32_t>& inds, const std::vector<Texture>& texts);
 		/**
 		 * @brief draw the mesh with the shader put in param
 		 * \param shader
@@ -31,14 +31,14 @@ namespace nico {
 		 */
 		static bool renderLines;
 	private:
-		std::vector<Vertex> Vertices;
-		std::vector<uint32_t> indices;
+		uint32_t numberOfIndices;
 		std::vector<Texture> textures;
 
-		VertexArray* VAO;
-		VertexBuffer<Vertex> *VBO;
-		indicesBuffer<unsigned int>* EBO;
+		uint32_t VAO;
+		uint32_t VBO;
+		uint32_t EBO;
 
-		void setup();
+		void setup(const std::vector<Vertex>& Vertices, const std::vector<uint32_t>& indices);
+		void bindTextures(Shader* shader);
 	};
 }

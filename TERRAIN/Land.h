@@ -43,6 +43,7 @@ protected:
 	uint32_t nearResolution;
 
 	std::unordered_map<int, std::unordered_map<int, std::shared_ptr<Chunk>>> land;
+	//nico::InstancedModel trees;
 
 	//water
 	glm::ivec2 refractionRes;

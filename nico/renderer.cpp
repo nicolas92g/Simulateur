@@ -311,9 +311,9 @@ void nico::Renderer::updateShadows(vec3 position, vec3 lightDirection, float siz
 
 	shadowShader.set<glm::mat4>("lightSpaceMatrix", lightVP);
 
-	for (std::list<Object3d*>::iterator it = decors.begin(); it != decors.end(); it++) {
-		(**it).draw(&shadowShader);
-	}
+	//for (std::list<Object3d*>::iterator it = decors.begin(); it != decors.end(); it++) {
+	//	(**it).draw(&shadowShader);
+	//}
 	for (std::list<Object3d*>::iterator it = entities.begin(); it != entities.end(); it++) {
 		(**it).draw(&shadowShader);
 	}
@@ -665,13 +665,16 @@ void nico::Renderer::drawObjects()
 
 	//iterate through decor
 	for (std::list<Object3d*>::iterator it = decors.begin(); it != decors.end(); it++) {
-		//draw call: 
-		(**it).draw(shader);
+		//draw call:
+		if (glm::distance((**it).getPos(), cam->getPosition()) < 1000 and
+			(cam->isVertexInTheFieldOfView((**it).getPos()) or glm::distance((**it).getPos(), cam->getPosition()) < 10)) {
+			(**it).draw(shader);
 
-		//number of drawing objects counting
+			//number of drawing objects counting
 #		ifdef NICO_RENDERING_DEBUG
-		nbr++;
+			nbr++;
 #		endif
+		}
 	}
 
 	//iterate through entities
