@@ -138,7 +138,7 @@ void Land::update()
 				directionOfTheLoading = lookChunk;
 
 			else {
-				break;
+				return;
 			}
 
 			chunkToLoad += directionOfTheLoading;
@@ -149,13 +149,13 @@ void Land::update()
 
 			if (!isLoaded(chunkToLoad)) {
 				land[chunkToLoad.x][chunkToLoad.y] = std::make_shared<Chunk>(chunkToLoad, resolutionOfChunks, render);
-				break;
+				return;
 			}
 
 			if (land[chunkToLoad.x][chunkToLoad.y]->getResolution() != resolutionOfChunks) {
 				land[chunkToLoad.x][chunkToLoad.y]->setResolution(resolutionOfChunks);
 				if(resolutionOfChunks == nearResolution) needToReloadTrees = true;
-				break;
+				return;
 			}
 		}
 	}
