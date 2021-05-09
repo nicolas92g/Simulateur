@@ -200,7 +200,7 @@ vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir){
         
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(pbr.normal, viewDir), 0.0) * max(dot(pbr.normal, L), 0.0);
-        vec3 specularColor = numerator / max(denominator, 0.001) ;//* attenuation;
+        vec3 specularColor = numerator / max(denominator, 0.001) * attenuation;
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(pbr.normal, L), 0.0);                

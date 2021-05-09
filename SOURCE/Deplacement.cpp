@@ -1,4 +1,4 @@
-#include "Deplacement.h"
+ #include "Deplacement.h"
 
 using namespace nico;
 using namespace glm;
@@ -94,7 +94,7 @@ void parametrageDeLaCamera(nico::Camera* cam)
 {
 	if (cam->getPosition().y > 1000) {
 		cam->setZFar(10000.0f);
-		cam->setZNear(10.0f);
+		cam->setZNear(9.0f);
 		Controls::zoomMin = 5.4f;
 
 		if(Controls::zoom < Controls::zoomMin)
@@ -126,22 +126,29 @@ vec3 animationSoupape(nico::Window* win)
 	return vec3(0, hauteurSoupape, 0);
 }
 
-void animationBruleur(nico::Window* win, nico::Light& light, const glm::vec3& mongolPos)
+void animationBruleur(nico::Renderer& render, nico::Light& light, const glm::vec3& mongolPos)
 {
 	static float intensity = 0;
-	static constexpr float minI = 0, maxI = 50;
-	if (win->Key(GLFW_KEY_SPACE)) {
-		intensity += win->getDeltaTime() * 200;
+	static constexpr float minI = 0, maxI = 10;
+	if (render.Window()->Key(GLFW_KEY_SPACE)) {
+		intensity += render.Window()->getDeltaTime() * 20;
 	}
 	else {
-		intensity -= win->getDeltaTime() * 200;
+		intensity -= render.Window()->getDeltaTime() * 20;
 	}
 	
 	intensity = std::max(minI, std::min(maxI, intensity));
 	
 	light.setColor(vec3(2, 0.7, 0.4) * intensity);
+	light.setLightAttenuationValues(0.7f);
+	
+	if (intensity < 0.3f)
+		render.removeLightSource(&light);
+	else
+		render.addLightSource(&light);
+
 	static constexpr float A = .02f;
-	light.setPos(mongolPos - vec3((rand() % 10) * A, 1.5f + (rand() % 10) * A, (rand() % 10) * A));
+	light.setPos(mongolPos - vec3((rand() % 10 - 5) * A, 0.2f + (rand() % 10) * A, (rand() % 10 - 5) * A));
 }
 
 

@@ -126,24 +126,24 @@ void main(){
     pbr.normal = calcNormal(normalMap, GROUND_SIZE);
 
     sand.metallic = 0.1;
-    sand.roughness = 0.4;
-    sand.normal = pbr.normal;
-    sand.baseColor = vec3(0.8, 0.8, 0.1);
+    sand.roughness = 0.2;  
+    sand.normal = calcNormal(normalMap, 0.02);
+    sand.baseColor = vec3(0.9, 0.7, 0.15);
 
     rock.metallic = 1;
     rock.roughness = 0.9;
     rock.normal = pbr.normal;
-    rock.baseColor = vec3(0.45, 0.3, 0.25);
+    rock.baseColor = vec3(0.65, 0.45, 0.4);
   
-    snow.metallic = 0;
-    snow.roughness = 0.2;
-    snow.normal = pbr.normal;
+    snow.metallic = 0.01;
+    snow.roughness = 0.01;
+    snow.normal = calcNormal(normalMap, 0.1);
     snow.baseColor = vec3(1);
 
-    grass.metallic = 0;
-    grass.roughness = 0.3;
-    grass.normal = pbr.normal;
-    grass.baseColor = vec3(0.0, 0.3, 0.0);
+    grass.metallic = 0.01;
+    grass.roughness = 0.8;
+    grass.normal = calcNormal(normalMap, 0.05);
+    grass.baseColor = vec3(0.13, 0.35, 0.02);
 
     calcColor(pbr.normal); 
 
@@ -166,11 +166,11 @@ void main(){
    
     vec3 Lo = vec3(0);
 
-//    //points lights
-//    for (int i = 0; ((i < int(numberOfLight)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
-//    {           
-//        Lo += CalcLight(light[i], F0, pbr.normal, fragPos, V);
-//    }
+    //points lights
+    for (int i = 0; ((i < int(numberOfLight)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
+    {           
+        Lo += CalcLight(light[i], F0, pbr.normal, fragPos, V);
+    }
 //
 //    //spots lights
 //    for (int i = 0; ((i < int(numberOfSpot)) && (i < MAX_NUMBER_OF_LIGHT)) ; i++)
@@ -312,6 +312,7 @@ vec3 CalcDirLight(DirLight light, vec3 F0, vec3 viewDir, vec4 lightFragmentPosit
 vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir){
     // calculate per-light radiance
         vec3 L = normalize(light.position - fragPos);
+        if(distance(light.position, fragPos) > 50) return vec3(0);
         vec3 H = normalize(viewDir + L);
         float distance    = length(light.position - fragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
@@ -328,7 +329,7 @@ vec3 CalcLight(Light light, vec3 F0, vec3 normal, vec3 fragPos, vec3 viewDir){
         
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(pbr.normal, viewDir), 0.0) * max(dot(pbr.normal, L), 0.0);
-        vec3 specularColor     = numerator / max(denominator, 0.001) ;//* attenuation;
+        vec3 specularColor     = numerator / max(denominator, 0.001) * attenuation;
             
         // add to outgoing radiance Lo
         float NdotL = max(dot(pbr.normal, L), 0.0);                
@@ -446,9 +447,10 @@ Material mixM(Material a, Material b, float factor){
     ret.baseColor = mix(a.baseColor, b.baseColor, factor);
     ret.metallic = mix(a.metallic, b.metallic, factor);
     ret.roughness = mix(a.roughness, b.roughness, factor);
-    ret.normal = mix(a.normal, b.normal, factor);
     ret.alpha = mix(a.alpha, b.alpha, factor);
     ret.ao = 1;
+
+    ret.normal = mix(a.normal, b.normal, factor);
 
     return ret;
 }

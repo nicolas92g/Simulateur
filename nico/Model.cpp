@@ -10,9 +10,9 @@ nico::Model::Model(const char* path)
 
 void nico::Model::draw(Shader* shader)
 {
-	for (size_t i = 0; i < meshes.size(); i++)
+	for (auto& mesh : meshes)
 	{
-		meshes[i].draw(shader);
+		mesh.draw(shader);
 	}
 }
 

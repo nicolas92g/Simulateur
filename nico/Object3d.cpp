@@ -27,8 +27,8 @@ nico::Object3d::Object3d(DrawableObject* objectTodraw, vec3 position, vec3 scale
 void nico::Object3d::update()
 {
 	model = translate(position) * rotate(rotationAngle, rotationAxe) * glm::scale(scale);
-	if (object != nullptr)
-		object->update();
+	//if (object != nullptr)
+		//object->update();
 }
 
 void nico::Object3d::draw(Shader* shader)

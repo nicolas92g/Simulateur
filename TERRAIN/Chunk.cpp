@@ -12,7 +12,7 @@ using namespace glm;
 noise::module::Perlin Chunk::noise;
 noise::module::RidgedMulti Chunk::ridged;
 
-Chunk::Chunk(ivec2 pos, uint32_t res)
+Chunk::Chunk(ivec2 pos, uint32_t res, nico::Renderer* render)
 {
 	this->chunkGridPos = pos;
 	this->ResPowerTwo = res;
@@ -22,14 +22,14 @@ Chunk::Chunk(ivec2 pos, uint32_t res)
 	this->VBO = NULL;
 	this->EBO = NULL;
 	this->isReloading = false;
+	this->render = render;
 
+	noise.SetSeed(-123);
 	this->isCreated = false;
 	this->DrawFunc = preCreatedDrawCall;
 	this->loadingThread = new std::thread(&Chunk::createChunkData, this);
 	this->loadingThread->detach();
 	this->containWater = true;
-
-	noise.SetSeed(-123);
 }
 
 Chunk::~Chunk(){
@@ -84,6 +84,7 @@ void Chunk::setResolution(uint8_t powerOfTwo)
 	this->resolution = pow(2,powerOfTwo);
 
 	maxPowerTwo = std::max<uint32_t>(maxPowerTwo, ResPowerTwo);
+		
 	
 	this->isReloading = true;
 
@@ -114,6 +115,11 @@ std::vector<sphere>* Chunk::getHitbox()
 	return nullptr;
 }
 
+//std::vector<glm::mat4>& Chunk::getTrees()
+//{
+//	return trees;
+//}
+
 void Chunk::CalculateHeights()
 {
 	//fill vertical Pos with one more pos in each direction to determine normals
@@ -123,6 +129,8 @@ void Chunk::CalculateHeights()
 	const double yOffset = (double)chunkGridPos.y * (double)CHUNK_SIZE;
 	
 	containWater = false;
+	//uint32_t numberOfTreesGenerated(0);
+	//trees.resize((NUMBER_OF_HEIGHTS) * (NUMBER_OF_HEIGHTS));
 
 	for (uint32_t i = 0; i < NUMBER_OF_HEIGHTS; i ++)
 	{
@@ -136,11 +144,19 @@ void Chunk::CalculateHeights()
 			//the array is filled in a way that we can add some heights between previous values
 			heights[x][y] = heightFunction(X, Y);
 
+			//if (ResPowerTwo > 6) {
+			//	if (noise.GetValue(X * 0.2, Y * 0.2, 1) - 0.5 > noise.GetValue(X * 0.01, Y * 0.01, 1)) {
+			//		trees[numberOfTreesGenerated] = glm::translate(vec3(X, heights[x][y], Y));
+			//		numberOfTreesGenerated++;
+			//	}
+			//}
 			//check if the chunk contain some underwater vertices
 			if (heights[x][y] < seaLevel)
 				containWater = true;
 		}
 	}
+
+	//trees.resize(numberOfTreesGenerated);
 }
 
 void Chunk::CalculateVertices()
@@ -229,16 +245,16 @@ double Chunk::heightFunction(double X, double Y)
 	H *= 1.5;
 
 	//avoid Z-fighting
-	if (H > seaLevel) {
-		if (H < ((double)seaLevel + offsetBetweenSeaAndLand)) {
-			H = ((double)seaLevel + offsetBetweenSeaAndLand);
-		}
-	}
-	else {
-		if (H > ((double)seaLevel - offsetBetweenSeaAndLand)) {
-			H = ((double)seaLevel - offsetBetweenSeaAndLand);
-		}
-	}
+	//if (H > seaLevel) {
+	//	if (H < ((double)seaLevel + offsetBetweenSeaAndLand)) {
+	//		H = ((double)seaLevel + offsetBetweenSeaAndLand);
+	//	}
+	//}
+	//else {
+	//	if (H > ((double)seaLevel - offsetBetweenSeaAndLand)) {
+	//		H = ((double)seaLevel - offsetBetweenSeaAndLand);
+	//	}
+	//}
 
 	return H;
 }
@@ -308,13 +324,13 @@ void Chunk::drawCall(Shader* shader, Chunk* chunk)
 
 void Chunk::generatingDrawCall(nico::Shader* shader, Chunk* chunk)
 {
-	if (!chunk->isReloading) {
-		chunk->sendData();
-		chunk->DrawFunc = &Chunk::drawCall;
-		delete chunk->loadingThread;
-	}
+if (!chunk->isReloading) {
+	chunk->sendData();
+	chunk->DrawFunc = &Chunk::drawCall;
+	delete chunk->loadingThread;
+}
 
-	drawCall(shader, chunk);
+drawCall(shader, chunk);
 }
 
 void Chunk::genWaterObject()
@@ -332,7 +348,7 @@ void Chunk::genWaterObject()
 
 	glGenBuffers(1, &waterVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, waterVBO);
-	
+
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
@@ -378,12 +394,12 @@ void Chunk::CalculateIndices()
 		for (uint16_t y = 0; y < resolution; y++)
 		{
 			uint32_t i = (x * resolution + y) * 6;
-			indices[ i     ] = (x + (y * (resolution + 1)));
-			indices[ i + 1 ] = ((x + 1) + (y * (resolution + 1)));
-			indices[ i + 2 ] = (x + ((y + 1) * (resolution + 1)));
-			indices[ i + 3 ] = (x + ((y + 1) * (resolution + 1)));
-			indices[ i + 4 ] = ((x + 1) + (y * (resolution + 1)));
-			indices[ i + 5 ] = ((x + 1) + ((y + 1) * (resolution + 1)));
+			indices[i] = (x + (y * (resolution + 1)));
+			indices[i + 1] = ((x + 1) + (y * (resolution + 1)));
+			indices[i + 2] = (x + ((y + 1) * (resolution + 1)));
+			indices[i + 3] = (x + ((y + 1) * (resolution + 1)));
+			indices[i + 4] = ((x + 1) + (y * (resolution + 1)));
+			indices[i + 5] = ((x + 1) + ((y + 1) * (resolution + 1)));
 		}
 	}
 }

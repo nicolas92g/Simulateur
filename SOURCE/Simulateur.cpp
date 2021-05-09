@@ -11,7 +11,7 @@ using namespace nico;
 using namespace glm;
 
 #define NOMBRE_DE_CHUNK_MIN 4
-#define DEFAULT_POS vec3(-458, 3.5 , 3470)
+#define DEFAULT_POS vec3(2554, 8 , 5312)
 #define DEFAULT_TEMPERATURE 45
 
 
@@ -204,7 +204,7 @@ int main() {
 		//afficher la montgolfiere a la nouvelle position 
 		montgol.setPos(montgolPhysique.pos);
 		soupape.setPos(montgolPhysique.pos + animationSoupape(render.Window()));
-		animationBruleur(render.Window(), bruleur, montgolPhysique.pos);
+		animationBruleur(render, bruleur, montgolPhysique.pos);
 
 		//met a jour la camera avec la souris
 		if (interface2d.getState() == Interface2d::State::playing)
