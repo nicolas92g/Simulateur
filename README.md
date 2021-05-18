@@ -1,6 +1,8 @@
 # Simulateur
 Simulateur de Mongolfiere (hot air balloon Simulator)
 
+press escape and then on the ? button on the application to know how to use it.
+
 description of the project:
 This Simulator was written in C++ with openGL
 additional used libraries are : glfw, glm, freetype, libnoise, stb-master, glad, assimp
