@@ -7,20 +7,25 @@
 #include "Forces.h"
 #include "interface2d.h"
 
+//simplifie la syntaxe
 using namespace nico;
 using namespace glm;
 
+// nombre de troncons minimun a chargé avant d'afficher quoi que ce soit
 #define NOMBRE_DE_CHUNK_MIN 4
+//position par default de la montgolfiere
 #define DEFAULT_POS vec3(2554, 8 , 5312)
+//temperature par default de la montgolfiere
 #define DEFAULT_TEMPERATURE 45
 
 
 int main() {
 	//initialisation de l'afficheur 3D
 	Renderer render;
+	//mettre une iconne a la fenetre
 	render.Window()->setIcon(NICO_TEXTURES_PATH"montgol.png");
 	//creer un afficheur de texte avec la police par default
-	TextRenderer text;
+	TextRenderer text(NICO_TEXTURES_PATH"Roboto-Light.ttf");
 
 	//creer la camera
 	Camera player;
@@ -31,17 +36,20 @@ int main() {
 	//creer l'afficheur 2D
 	Renderer2d render2d(render.Window());
 
-	//creer un switch (on/off) pour le mode pleine ecran
+	//creer un switch (on/off) pour le mode pleine ecran, l'affichage supplementaire et le cheat mode
 	KeySwitch fullscreen(render.Window(), GLFW_KEY_F11);
 	KeySwitch menuInfo(render.Window(), GLFW_KEY_F3);
 	KeySwitch godMode(render.Window(), GLFW_KEY_F6);
 
+	//valeurs physiques de la mongolfiere
 	float masse(200.0f);
 	float volume(1400.0f);
-
 	float temperature = DEFAULT_TEMPERATURE;
+
+	//multiplie le temps
 	float temps(1);
 
+	//creation de l'affichage 2D des indicateurs de directions
 	Boussole::createTexture();
 	Boussole sunBoussole(render.Window(), &player, &text);
 	sunBoussole.setName("soleil");
@@ -113,7 +121,7 @@ int main() {
 	render.Window()->maximise();
 	
 	//titre de la fenetre
-	render.Window()->setTitle(" Simulateur de montgolfiere ( v-46.3.2 )");
+	render.Window()->setTitle("Simulateur de montgolfiere v1.0.2-alpha");
 
 	//creation de la hitbox de la mongolfiere
 	sphere mongolHitbox;
@@ -158,14 +166,17 @@ int main() {
 		//fonction qui gere la physique de deplacement
 		
 		if (!gameOver) {
+			//met a jour le deplacement de la mongolfiere et verifie que ce deplacement n'engendre pas une destruction de la motgolfiere
 			gameOver = deplacement(&montgolPhysique, render.Window(), terrain.getHitbox(montgolPhysique.pos), temps);
 
+			//si la montoglfiere a été detuite afficher gameover et afficher le curseur
 			if (gameOver) {
 				interface2d.setState(Interface2d::State::gameOver);
 				render.Window()->hideCursor(false);
 			}
 		}
 		else {
+			//si l'utilisateur a perdu et qu'il appuit sur reprendre
 			if (interface2d.getState() == Interface2d::State::recommencerAuMemeEndroit) {
 				gameOver = false;
 				montgolPhysique.pos.y = 50;
@@ -174,6 +185,7 @@ int main() {
 				interface2d.setState(Interface2d::State::playing);
 			}
 		}
+		//si l'utilisateur appuit sur recommencer
 		if (interface2d.getState() == Interface2d::State::recommencer) {
 			gameOver = false;
 			montgolPhysique.pos = DEFAULT_POS;
@@ -182,19 +194,24 @@ int main() {
 			temps = 1;
 			interface2d.setState(Interface2d::State::playing);
 
+			//il est possible que la translation que l'on viens d'effectuer amene le ballon sur des trocons non chargée 
+			//on verifie donc qu'il y a un nombre suffisant de chunks chargé avant d'afficher (comme au début du programme)
 			do {
 				terrain.update();
 			} while (terrain.getNumberOfLoadedChunks() < NOMBRE_DE_CHUNK_MIN);
 				
 		}
+		//si l'utilisateur appuit sur echap
 		else if (interface2d.getState() == Interface2d::State::pause) {
 			temps = 0;
 		}
+		//si l'utilisateur a mis pause et qu'il appuit sur reprendre
 		else if (interface2d.getState() == Interface2d::State::reprendre) {
 			temps = 1;
 			interface2d.setState(Interface2d::State::playing);
 			render.Window()->setCursorPos(render.Window()->getWidth() * .5, render.Window()->getHeight() * .5);
 		}
+		//si l'utilisateur est entrain de jouer
 		if (interface2d.getState() == Interface2d::State::playing) {
 			temps = interface2d.getTimeAcceleration();
 		}
@@ -234,6 +251,7 @@ int main() {
 		//affichage 2d
 		render2d.frame();
 
+		//affichage supplementaire (activation avec F3)
 		if (menuInfo) {
 			text.printLeftTop("loc : " + nico::strings::ivec3Tostring(montgolPhysique.pos) +
 				" chunks : " + std::to_string(terrain.getNumberOfLoadedChunks()));
@@ -246,14 +264,16 @@ int main() {
 				
 	} while (!render.Window()->shouldClose());//ferme la fenetre
 
-	//while (Chunk::getNumberOfWorkingThreads());//attends que tous les programmes parallele soit terminé
-
+	//attendre une seconde que les thread paralelle soit terminé
+	for (size_t i = 0; i < 1000 and Chunk::getNumberOfWorkingThreads(); i++)
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	
 	return 0;//exit
 }
 
-
+//pour creer une application windows (la configuration release n'a pas de cmd, la fonction main est donc remplacée par WinMain)
 #ifdef NDEBUG
-int WinMain(){ 
+int WinMain(){
 	return main(); 
 }
 #endif // NDEBUG

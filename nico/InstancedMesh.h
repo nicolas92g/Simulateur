@@ -2,6 +2,9 @@
 #include "mesh.h"
 
 namespace nico{
+	/**
+	 * @brief utilisée pour afficher des modeles 3D par instanciation mais ca marche pas encore
+	 */
 	class InstancedMesh : public DrawableObject{
 	public:
 		InstancedMesh(

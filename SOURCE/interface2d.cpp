@@ -167,17 +167,17 @@ void Interface2d::draw(nico::Shader* shader)
 		recommencer.setPosition(glm::vec2(x, y));
 		recommencer.setScale(glm::vec2(x * .5, x * .1));
 		recommencer.draw(shader);
-		text->print("Recommencer", x - text->calculateTextRenderingSize("Recommencer", y * .075).x * .5, y, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("Recommencer", x - text->calculateTextRenderingSize("Recommencer", y * .075).x * .5, y * .98, y * .075, glm::vec4(0, 0, 0, 1), false);
 
 		reprendrePlusHaut.setPosition(glm::vec2(x, y * .7));
 		reprendrePlusHaut.setScale(glm::vec2(x * .5, x * .1));
 		reprendrePlusHaut.draw(shader);
-		text->print("Reprendre", x - text->calculateTextRenderingSize("Reprendre", y * .075).x * .5, y * .7, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("Reprendre", x - text->calculateTextRenderingSize("Reprendre", y * .075).x * .5, y * .68, y * .075, glm::vec4(0, 0, 0, 1), false);
 
 		quitter.setPosition(glm::vec2(x, y * .4));
 		quitter.setScale(glm::vec2(x * .5, x * .1));
 		quitter.draw(shader);
-		text->print("Quitter", x - text->calculateTextRenderingSize("Quitter", y * .075).x * .5, y * .4, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("Quitter", x - text->calculateTextRenderingSize("Quitter", y * .075).x * .5, y * .38, y * .075, glm::vec4(0, 0, 0, 1), false);
 
 		if (recommencer.isClicked())
 			state = State::recommencer;
@@ -195,23 +195,19 @@ void Interface2d::draw(nico::Shader* shader)
 		recommencer.setPosition(glm::vec2(x, y));
 		recommencer.setScale(glm::vec2(x * .5, x * .1));
 		recommencer.draw(shader);
-		text->print("Recommencer", x - text->calculateTextRenderingSize("Recommencer", y * .075).x * .5, y, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("Recommencer", x - text->calculateTextRenderingSize("Recommencer", y * .075).x * .5, y * .98, y * .075, glm::vec4(0, 0, 0, 1), false);
 
 		reprendre.setPosition(glm::vec2(x, y * .7));
 		reprendre.setScale(glm::vec2(x * .5, x * .1));
 		reprendre.draw(shader);
-		text->print("Reprendre", x - text->calculateTextRenderingSize("Reprendre", y * .075).x * .5, y * .7, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("Reprendre", x - text->calculateTextRenderingSize("Reprendre", y * .075).x * .5, y * .68, y * .075, glm::vec4(0, 0, 0, 1), false);
 
 		quitter.setPosition(glm::vec2(x, y * .4));
 		quitter.setScale(glm::vec2(x * .5, x * .1));
 		quitter.draw(shader);
-		text->print("Quitter", x - text->calculateTextRenderingSize("Quitter", y * .075).x * .5, y * .4, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("Quitter", x - text->calculateTextRenderingSize("Quitter", y * .075).x * .5, y * .38, y * .075, glm::vec4(0, 0, 0, 1), false);
 
-#		ifdef VERSION_DE_CLEMENT
-		text->print("connard et testeur legendaire : Clement Guillot", x - text->calculateTextRenderingSize("connard et testeur légendaire : Clement Guillot", y * .045).x * .5, y * .03, y * .045, glm::vec4(0.5, 0, 0, 1), false);
-#		endif
-
-		help.setPosition(glm::vec2(x * 0.8, y * 1.3));
+		help.setPosition(glm::vec2(x, y * 1.3));
 		help.setScale(glm::vec2(x * 0.05, x * 0.05));
 		help.draw(shader);
 		
@@ -257,14 +253,14 @@ void Interface2d::draw(nico::Shader* shader)
 		text->print(line6, x - text->calculateTextRenderingSize(line6, y * .04).x * .5, y * 1.0, y * .04, glm::vec4(1), false);
 
 		static const char const* line7 =
-			"PS : a oui j'allais oublier ! la montgolfiere c hyper chiant ducoup bas vous pouvez accelerer le temps avec les fleches ";
+			"Pour finir, vous pouvez accelerer le temps grace aux fleches ";
 		text->print(line7, x - text->calculateTextRenderingSize(line7, y * .04).x * .5, y * 0.9, y * .04, glm::vec4(1), false);
 
 
 		retour.setPosition(glm::vec2(x, y * .6));
 		retour.setScale(glm::vec2(x * .5, x * .1));
 		retour.draw(shader);
-		text->print("retour", x - text->calculateTextRenderingSize("retour", y * .075).x * .5, y * .6, y * .075, glm::vec4(0, 0, 0, 1), false);
+		text->print("retour", x - text->calculateTextRenderingSize("retour", y * .075).x * .5, y * .58, y * .075, glm::vec4(0, 0, 0, 1), false);
 
 		if (retour.isClicked())
 			state = State::pause;

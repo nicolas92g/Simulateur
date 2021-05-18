@@ -28,7 +28,6 @@ public:
 	bool wasCreated() const;
 	bool isReloadingRes() const;
 	std::vector<sphere>* getHitbox();
-	//std::vector<glm::mat4>& getTrees();
 
 	void CalculateHitbox();
 	void checkBadGeneration();

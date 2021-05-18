@@ -12,7 +12,6 @@ nico::Window::Window(int openglMajorVersion, int openglMinorVersion, bool debugM
 		fprintf(stderr, "error glfw cant init\n");
 		exit(-1);
 	}
-
 	glfwWindowHint(GLFW_SAMPLES, antialiasingLevel); // 4x antialiasing
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, openglMajorVersion); // On veut OpenGL 4.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, openglMinorVersion);

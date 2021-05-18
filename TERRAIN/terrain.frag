@@ -88,6 +88,8 @@ uniform bool water;
 uniform float time;
 uniform float seaLevel;
 
+uniform mat4 ortho;
+
 uniform sampler2D diffuse;//this name is just to be the same as the non-pbr shader, it represent albedo or base-color
 uniform sampler2D specular;//how metallic is the fragment
 uniform sampler2D roughness;//how rough is the fragment
@@ -281,6 +283,7 @@ void calcColor(vec3 N){
     }
     
     pbr.alpha = 1;
+
        
 }
 

@@ -10,6 +10,7 @@
 #include <stb_image.h>
 #include "openGlObject.h"
 #include "glDebugging.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 
 #define DEFAULT_SCREEN_SIZE glm::vec2(600,400)
@@ -25,7 +26,7 @@ namespace nico {
 		double deltaTime;
 		double time;
 		bool pauseIfUnfocused;
-
+		
 	public:
 		Window(int openglMajorVersion,
 			int openglMinorVersion , 

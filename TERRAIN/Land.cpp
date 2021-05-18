@@ -46,7 +46,7 @@ Land::~Land()
 void Land::update()
 {
 	shader->set("seaLevel", Chunk::seaLevel);
-
+	shader->set("ortho", (glm::mat4)glm::ortho(0, 800, 600, 0, -1, 1));
 	bool needToReloadTrees = false;
 
 	//reload shaders
